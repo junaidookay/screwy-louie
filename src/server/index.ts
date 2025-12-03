@@ -309,7 +309,15 @@ const server = http.createServer((req, res) => {
     return;
   }
   for (const root of staticRoots) {
-    const file = path.join(root, p.replace(/^\//, ""));
+    const rel = p.replace(/^\//, "");
+    let sub = rel;
+    const baseName = path.basename(root).toLowerCase();
+    if (baseName === "card game assets" && sub.toLowerCase().startsWith("card game assets/")) {
+      sub = sub.slice("Card Game Assets/".length);
+    } else if (baseName === "dist" && sub.toLowerCase().startsWith("dist/")) {
+      sub = sub.slice("dist/".length);
+    }
+    const file = path.join(root, sub);
     if (fs.existsSync(file) && fs.statSync(file).isFile()) {
       try { setType(file); fs.createReadStream(file).pipe(res); } catch { res.statusCode = 500; res.end("error"); }
       return;

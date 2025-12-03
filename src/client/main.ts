@@ -61,11 +61,14 @@ function cardImageCandidates(c: Card): string[] {
   ];
   if (!c.suit) return [];
   const rl = rankLabel(c.rank);
-  const base = `Card Game Assets/Cards/${rl} of ${c.suit}`;
-  return [
-    `${base} Card.png`,
-    `${base}.png`,
-  ];
+  const suitVars = [c.suit, c.suit.toLowerCase()];
+  const out: string[] = [];
+  for (const sv of suitVars) {
+    const base = `Card Game Assets/Cards/${rl} of ${sv}`;
+    out.push(`${base} Card.png`);
+    out.push(`${base}.png`);
+  }
+  return out;
 }
 
 function cardBackPath(): string {
