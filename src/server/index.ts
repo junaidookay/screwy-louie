@@ -299,6 +299,11 @@ const server = http.createServer((req, res) => {
     res.setHeader("Content-Type", "image/x-icon");
     return res.end();
   }
+  if (p === "/health") {
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    return res.end("{\"status\":\"ok\"}");
+  }
   if (p === "/" || p === "/index.html") {
     try { setType(indexFile); fs.createReadStream(indexFile).pipe(res); } catch { res.statusCode = 500; res.end("error"); }
     return;
