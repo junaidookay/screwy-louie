@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Screwy Louie - Welcome</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2F4B7C", /* Muted Blue */
+              "accent": "#DAA520", /* Soft Gold */
+              "background-light": "#F5F5DC", /* Warm Cream */
+              "background-dark": "#101922", /* Dark Mode: Kept from theme config */
+              "text-light": "#333333", /* Off-black */
+              "button-secondary-light": "#e4e4d5", /* Lighter cream for buttons */
+              "button-secondary-dark": "#1d2a38"
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+            boxShadow: {
+                'subtle': '0 4px 14px 0 rgba(0, 0, 0, 0.05)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body class="font-display">
+<div class="relative flex h-screen min-h-screen w-full flex-col items-center justify-center bg-background-light dark:bg-background-dark group/design-root overflow-hidden p-4">
+<!-- Subtle Background Image -->
+<div class="absolute inset-0 z-0">
+<img class="h-full w-full object-cover opacity-20 dark:opacity-10" data-alt="A soft-focus, desaturated image of various threads and sewing supplies on a light wooden surface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQ0fKMebL17qEXDj1AEZ_h57BpYJQtMExOs95HgyOLmzXfcM6RygkLefu278YPLvH6G0gSBVul8Ame_Q0DtO4h-5Bt6BGYtLTvfYx2JEiuvGwr4DhjTgI3PxvcGU-TI1G7TmtMhNDKscRNrDTN0o4Sc0t9L6qp7tGtY2ccFFX4nf7Ri67KZv898zgEljc-U5TiKcX7AGvpWTSmIN1Ao1ud-UGMBEyhjXjkaIiDpvf13qK77WIFt1Y8GOFBa3bZXeAehljshqFLUjAK"/>
+</div>
+<div class="relative z-10 flex h-full grow flex-col items-center justify-center w-full">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 items-center justify-center w-full">
+<!-- Game Title -->
+<h1 class="text-text-light dark:text-background-light tracking-light text-5xl md:text-6xl font-bold leading-tight text-center pb-6 pt-6">Screwy Louie</h1>
+<!-- Main Buttons -->
+<div class="flex justify-center w-full">
+<div class="flex w-full max-w-sm flex-col items-stretch gap-4 p-4">
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-lg h-16 px-6 bg-primary text-white text-xl font-bold leading-normal tracking-wide shadow-subtle transition-colors hover:bg-accent hover:text-text-light">
+<span class="material-symbols-outlined text-3xl">play_arrow</span>
+<span class="truncate">Play Game</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-lg h-14 px-6 bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light text-lg font-bold leading-normal tracking-wide shadow-subtle transition-colors hover:bg-primary/20 dark:hover:bg-primary/30">
+<span class="material-symbols-outlined text-2xl">slideshow</span>
+<span class="truncate">Watch Tutorial</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-lg h-14 px-6 bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light text-lg font-bold leading-normal tracking-wide shadow-subtle transition-colors hover:bg-primary/20 dark:hover:bg-primary/30">
+<span class="material-symbols-outlined text-2xl">settings</span>
+<span class="truncate">Settings</span>
+</button>
+<button class="flex min-w-[84px] cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-lg h-14 px-6 bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light text-lg font-bold leading-normal tracking-wide shadow-subtle transition-colors hover:bg-primary/20 dark:hover:bg-primary/30">
+<span class="material-symbols-outlined text-2xl">help_outline</span>
+<span class="truncate">Help</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Footer / Version Info -->
+<div class="w-full flex justify-center pb-6">
+<p class="text-text-light/60 dark:text-background-light/50 text-sm font-normal leading-normal text-center">Version 1.0</p>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,60 @@
+{
+  "colors": {
+    "background": {
+      "deepNavy": "#0b1320",
+      "coolBlueDark": "#1b2640",
+      "coolBlueMedium": "#243354",
+      "lightThemeBackground": "#f8f8f8",
+      "lightThemeAccent": "#e0f2f7"
+    },
+    "accent": {
+      "cyan": "#66ccff",
+      "hoverGlow": "#66ccff",
+      "validHighlight": "#66ccff",
+      "invalidHighlight": "#ff6666"
+    },
+    "text": {
+      "primary": "#ffffff",
+      "secondary": "#a0a0a0",
+      "lightThemePrimary": "#0b1320",
+      "lightThemeSecondary": "#505050"
+    },
+    "cards": {
+      "border": "#66ccff",
+      "backgroundDark": "linear-gradient(135deg, #1b2640, #243354)",
+      "backgroundLight": "linear-gradient(135deg, #e0f2f7, #c6e6ee)",
+      "suitSpadeClub": "#ffffff",
+      "suitHeartDiamond": "#ffffff",
+      "suitSpadeClubLight": "#0b1320",
+      "suitHeartDiamondLight": "#e74c3c"
+    },
+    "ui": {
+      "buttonPrimary": "linear-gradient(135deg, #66ccff, #3399ff)",
+      "buttonSecondary": "#243354",
+      "buttonDisabled": "#1b2640",
+      "inputBorder": "#243354",
+      "inputBackground": "#1b2640",
+      "modalBackground": "#0b1320",
+      "panelBackground": "#1b2640"
+    }
+  },
+  "spacing": {
+    "xs": "4px",
+    "sm": "8px",
+    "md": "16px",
+    "lg": "24px",
+    "xl": "32px",
+    "cardBorderRadius": "12px",
+    "buttonBorderRadius": "8px",
+    "inputBorderRadius": "6px",
+    "componentPadding": "20px"
+  },
+  "fontSizes": {
+    "cardIndex": "32px",
+    "buttonText": "20px",
+    "badgeText": "16px"
+  },
+  "shadows": {
+    "soft": "0px 4px 8px rgba(0, 0, 0, 0.3)"
+  }
+}

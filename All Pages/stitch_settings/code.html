@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Screwy Louie - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4A90E2",
+                        "background-light": "#F8F9FA",
+                        "background-dark": "#121212",
+                        "text-light": "#333333",
+                        "text-dark": "#FFFFFF",
+                        "accent-dark": "#FFD700",
+                        "component-light": "#FFFFFF",
+                        "component-dark": "#1E1E1E",
+                        "component-stroke-light": "#E0E0E0",
+                        "component-stroke-dark": "#333333",
+                        "muted-light": "#666666",
+                        "muted-dark": "#AAAAAA"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<div class="relative flex min-h-screen w-full flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+<div class="w-full max-w-3xl rounded-xl bg-component-light dark:bg-component-dark shadow-lg border border-component-stroke-light dark:border-component-stroke-dark">
+<div class="p-6 sm:p-8">
+<!-- PageHeading -->
+<div class="flex flex-wrap items-center justify-between gap-3 pb-6">
+<p class="text-4xl font-black tracking-[-0.033em]">Settings</p>
+</div>
+<!-- Accessibility Section -->
+<div class="flex flex-col gap-4">
+<h2 class="text-[22px] font-bold tracking-[-0.015em] pt-4 pb-2 text-text-light dark:text-text-dark">Accessibility</h2>
+<!-- Text Size -->
+<div class="rounded-lg border border-component-stroke-light dark:border-component-stroke-dark p-4">
+<p class="text-lg font-medium leading-normal pb-3 text-text-light dark:text-text-dark">Text Size</p>
+<div class="flex">
+<div class="flex h-12 flex-1 items-center justify-center rounded-xl bg-background-light dark:bg-background-dark p-1.5">
+<label class="flex h-full flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg px-3 text-base font-medium leading-normal text-muted-light dark:text-muted-dark has-[:checked]:bg-white has-[:checked]:dark:bg-component-dark has-[:checked]:shadow-[0_1px_3px_rgba(0,0,0,0.1)] has-[:checked]:text-text-light has-[:checked]:dark:text-text-dark">
+<span class="truncate">Small</span>
+<input class="sr-only" name="text-size" type="radio" value="Small"/>
+</label>
+<label class="flex h-full flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg px-3 text-base font-medium leading-normal text-muted-light dark:text-muted-dark has-[:checked]:bg-white has-[:checked]:dark:bg-component-dark has-[:checked]:shadow-[0_1px_3px_rgba(0,0,0,0.1)] has-[:checked]:text-text-light has-[:checked]:dark:text-text-dark">
+<span class="truncate">Medium</span>
+<input checked="" class="sr-only" name="text-size" type="radio" value="Medium"/>
+</label>
+<label class="flex h-full flex-1 cursor-pointer items-center justify-center overflow-hidden rounded-lg px-3 text-base font-medium leading-normal text-muted-light dark:text-muted-dark has-[:checked]:bg-white has-[:checked]:dark:bg-component-dark has-[:checked]:shadow-[0_1px_3px_rgba(0,0,0,0.1)] has-[:checked]:text-text-light has-[:checked]:dark:text-text-dark">
+<span class="truncate">Large</span>
+<input class="sr-only" name="text-size" type="radio" value="Large"/>
+</label>
+</div>
+</div>
+</div>
+<!-- High Contrast Mode -->
+<div class="flex min-h-[72px] items-center justify-between gap-4 rounded-lg border border-component-stroke-light dark:border-component-stroke-dark bg-component-light dark:bg-component-dark px-4">
+<div class="flex items-center gap-4">
+<div class="text-text-light dark:text-text-dark flex size-11 shrink-0 items-center justify-center rounded-lg bg-background-light dark:bg-background-dark text-2xl">
+<span class="material-symbols-outlined">contrast</span>
+</div>
+<p class="text-lg font-medium leading-normal">High Contrast Mode</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full bg-background-light dark:bg-background-dark p-0.5 has-[:checked]:bg-primary has-[:checked]:dark:bg-accent-dark">
+<div class="h-[27px] w-[27px] rounded-full bg-white transition-transform duration-300 ease-in-out" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;"></div>
+<input class="peer sr-only" type="checkbox"/>
+<div class="absolute inset-0.5 w-[calc(100%-4px)] transform transition-transform duration-300 ease-in-out peer-checked:translate-x-[20px]">
+<div class="h-[27px] w-[27px] rounded-full bg-white" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;"></div>
+</div>
+</label>
+</div>
+</div>
+<!-- Color-Blind Friendly Suits -->
+<div class="flex min-h-[72px] items-center justify-between gap-4 rounded-lg border border-component-stroke-light dark:border-component-stroke-dark bg-component-light dark:bg-component-dark px-4">
+<div class="flex items-center gap-4">
+<div class="text-text-light dark:text-text-dark flex size-11 shrink-0 items-center justify-center rounded-lg bg-background-light dark:bg-background-dark text-2xl">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<p class="text-lg font-medium leading-normal">Color-Blind Friendly Suits</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full bg-background-light dark:bg-background-dark p-0.5 has-[:checked]:bg-primary has-[:checked]:dark:bg-accent-dark">
+<div class="peer sr-only">
+<input type="checkbox"/>
+</div>
+<div class="absolute inset-0.5 w-[calc(100%-4px)] transform transition-transform duration-300 ease-in-out peer-checked:translate-x-[20px]">
+<div class="h-[27px] w-[27px] rounded-full bg-white" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;"></div>
+</div>
+</label>
+</div>
+</div>
+</div>
+<!-- Game Preferences Section -->
+<div class="flex flex-col gap-4 mt-8">
+<h2 class="text-[22px] font-bold tracking-[-0.015em] pt-4 pb-2 text-text-light dark:text-text-dark">Game Preferences</h2>
+<!-- Game Sounds -->
+<div class="flex min-h-[72px] items-center justify-between gap-4 rounded-lg border border-component-stroke-light dark:border-component-stroke-dark bg-component-light dark:bg-component-dark px-4">
+<div class="flex items-center gap-4">
+<div class="text-text-light dark:text-text-dark flex size-11 shrink-0 items-center justify-center rounded-lg bg-background-light dark:bg-background-dark text-2xl">
+<span class="material-symbols-outlined">volume_up</span>
+</div>
+<p class="text-lg font-medium leading-normal">Game Sounds</p>
+</div>
+<div class="shrink-0">
+<label class="relative flex h-[31px] w-[51px] cursor-pointer items-center rounded-full bg-background-light dark:bg-background-dark p-0.5 has-[:checked]:bg-primary has-[:checked]:dark:bg-accent-dark">
+<input checked="" class="peer sr-only" type="checkbox"/>
+<div class="absolute inset-0.5 w-[calc(100%-4px)] transform transition-transform duration-300 ease-in-out peer-checked:translate-x-[20px]">
+<div class="h-[27px] w-[27px] rounded-full bg-white" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 4px;"></div>
+</div>
+</label>
+</div>
+</div>
+<!-- Turn Timer -->
+<div class="rounded-lg border border-component-stroke-light dark:border-component-stroke-dark p-4">
+<p class="text-lg font-medium leading-normal pb-4 text-text-light dark:text-text-dark">Turn Timer</p>
+<div class="relative w-full py-2">
+<input class="w-full h-2 bg-background-light dark:bg-background-dark rounded-full appearance-none cursor-pointer range-lg accent-primary dark:accent-accent-dark" max="4" min="0" step="1" type="range" value="2"/>
+<div class="flex justify-between w-full px-1 mt-2 text-sm text-muted-light dark:text-muted-dark">
+<span>15s</span>
+<span>30s</span>
+<span>45s</span>
+<span>60s</span>
+<span>Off</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="flex flex-col sm:flex-row gap-4 pt-10">
+<button class="flex h-14 w-full items-center justify-center rounded-lg bg-primary dark:bg-accent-dark px-6 text-lg font-semibold text-white dark:text-background-dark shadow-sm transition-colors hover:bg-opacity-90 dark:hover:bg-opacity-90">
+                        Save Changes
+                    </button>
+<button class="flex h-14 w-full items-center justify-center rounded-lg bg-background-light dark:bg-component-dark px-6 text-lg font-semibold text-text-light dark:text-text-dark ring-1 ring-inset ring-component-stroke-light dark:ring-component-stroke-dark transition-colors hover:bg-gray-100 dark:hover:bg-gray-800">
+                        Back to Game
+                    </button>
+</div>
+</div>
+</div>
+</div>
+</body></html>

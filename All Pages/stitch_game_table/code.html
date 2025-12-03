@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Screwy Louie - Game Table</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#2b8cee",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
+<div class="relative flex h-screen w-full flex-col group/design-root overflow-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-800 px-6 py-3 bg-white dark:bg-background-dark shadow-sm">
+<div class="flex items-center gap-4 text-[#111418] dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-lg font-bold leading-tight tracking-[-0.015em] dark:text-gray-100">Screwy Louie</h2>
+</div>
+<div class="flex flex-1 justify-end items-center gap-6">
+<div class="flex gap-2">
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-gray-800 text-[#111418] dark:text-gray-200 gap-2 text-sm font-bold leading-normal min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-xl">chat_bubble</span>
+</button>
+</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar with a gradient background" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDIPlg1Wh6yJaO8vIesVixTkP4yEDFeZmK2_rcFrwOBYfw-Eb-iHJw94eGv7RFWNK2txzWBu-GMPRxRCSQkLFqeLL7SYDIfmJhGV9-sShYNSQSZfKFMRTWyEHmJvRkug6GbuDATI6paMpEPb6nqAjY5Kgc-2MNidljfah0sNf-TvvnDEdGYAJWfKoZq-nAdAS0teD8BIECWq5sZJVmlWZh-wezStJCgBGgM5AFNYQ5kVhalrwvX6A7e-6HeHOUKFcFmGSuArSpemt66");'></div>
+</div>
+</header>
+<main class="flex-1 flex flex-col p-4 md:p-6 lg:p-8">
+<div class="flex justify-center w-full">
+<div class="w-full max-w-7xl flex flex-col items-center">
+<h2 class="text-[#111418] dark:text-gray-100 tracking-light text-2xl sm:text-[28px] font-bold leading-tight text-center pb-2 pt-2">Your Turn!</h2>
+<p class="text-[#617589] dark:text-gray-400 text-sm font-normal leading-normal pb-3 text-center">Select cards from your hand to make a play.</p>
+<div class="flex gap-4 py-4 px-4 w-full max-w-sm">
+<div class="flex grow basis-0 flex-col items-stretch gap-2">
+<div class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-white dark:bg-gray-800 shadow-sm">
+<p class="text-[#111418] dark:text-gray-100 text-lg font-bold leading-tight tracking-[-0.015em]">00</p>
+</div>
+<div class="flex items-center justify-center"><p class="text-[#617589] dark:text-gray-400 text-xs font-normal leading-normal">Hours</p></div>
+</div>
+<div class="flex grow basis-0 flex-col items-stretch gap-2">
+<div class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-white dark:bg-gray-800 shadow-sm">
+<p class="text-[#111418] dark:text-gray-100 text-lg font-bold leading-tight tracking-[-0.015em]">01</p>
+</div>
+<div class="flex items-center justify-center"><p class="text-[#617589] dark:text-gray-400 text-xs font-normal leading-normal">Minutes</p></div>
+</div>
+<div class="flex grow basis-0 flex-col items-stretch gap-2">
+<div class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-primary text-white shadow-sm">
+<p class="text-lg font-bold leading-tight tracking-[-0.015em]">30</p>
+</div>
+<div class="flex items-center justify-center"><p class="text-[#617589] dark:text-gray-400 text-xs font-normal leading-normal">Seconds</p></div>
+</div>
+</div>
+<!-- Main Play Area -->
+<div class="w-full bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg my-6 flex-1 min-h-[200px] flex items-center justify-center p-6">
+<p class="text-gray-400 dark:text-gray-500">Main Play Area</p>
+</div>
+</div>
+</div>
+<!-- Player Hand and Actions -->
+<div class="mt-auto pt-6 border-t border-gray-200 dark:border-gray-800 bg-background-light dark:bg-background-dark">
+<div class="w-full max-w-7xl mx-auto px-4">
+<div class="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3 p-4 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50">
+<!-- Selected Card Example -->
+<div class="flex flex-col gap-3 transform -translate-y-4 transition-transform">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-lg ring-4 ring-primary" data-alt="Ace of Spades card, selected" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA6szGnpTwJjtbvLTa9LaMbWJiL6Y61dxcU776HwjtxujIFf8YWgeTmvWX5xlvY2i01OJfXMMO43Qor93e0wSBwHNTgwSCA-NFEUQGtW_Bs_Ukyw84e_N4r20RZdNJkeJ49y4muhRmiVtbyknWcTxWNkUa-p_RQrWXujEKaZuYw4a-8uzXTT-xgbOI8kwdZQbB6hY7S6aaWrpDO1UwJnT8JnRDJb3sDZCBVk_1AkwPTan5wawa8T4Vd0jQ5TGDZzs4cNpVOcvd3fMvU");'></div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all" data-alt="King of Hearts card" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBjtILFYLv2iRnFqvCxTvDTEX5Zrrkel2io1FD-bqa5_G0am6Hd0X8W1AQmgzhudbGCy2uzC37P6INtmRj2AFx8au6yiwzhz0_gPC37vycNfscvQR3K57UV_XOY9mfhuxeLd6pTQvChfAgJIWUCKurHzbNE-7TqjoE97sVke9hChkyzv3XKjsbLAk-MTli9Ey8t9H_XRFYMZgPT0kcvTs0eqnprzMC5xwlCl8jSGxPoTPzoICuW3fZB3Hv3PYmxVWycCe9WwL5iy-KJ");'></div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all" data-alt="Queen of Diamonds card" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCnc-NNSuYDJsQPB--9mb9UxheQ1pu8RyRoIef9oUngIJLuOOlQ5BwQobcjQ6NqgK5nFGNZO3opuv8DGZ0PTwZTyxeqNPn-Fagl1_zETqiLuI-XPmw4SCQqz8W54WPSYkOaLNSr_QCE9q3QwLkWBzjHEjxWp_t7NR1BPfTdByNj6KSX6fC8x_uJiBeDoLgeiDovmQKNI-HFIiHQMILigVABb6fariVgVDCnycXvJYtEKshMK3fuOFdW_n-ypUxBowzA7WbqIXDIYec6");'></div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all" data-alt="Jack of Clubs card" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDBx5O8WQjx9wLXZTgL7tp7CdKVpCXLVwiCDHc-gDEjo9RP77hB3r3f7A4MbirCWi6OM3I7121TIGABrx5k63vFqRRrBFSKsYYSAFqCYKHjdCRHupDirpn9sbd9SlWkmaY1gc6rpD8fuGswaZ7rLlMG9S9E7th588lcQRtZ3xuSJDuhct5hU6OkBz1Bth53v7GJqiXxi3QYIyszysBXR6LQDFq9mYv9XgMGx89bam4w-KnewHGxYVG24okO8aJS80-T0Pwk_5lNEcXh");'></div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all" data-alt="Ten of Spades card" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBon76auDjJ0giPRuGT2azSYSc9Ez6yCjLnqqJc6jf6uIQZulw3NFl9vLGTXpQj-WSxZ6gPV4qNyHGD-YnlvZHhT3c2-216ugaYTGGFYfTiflSADXjNGaIi8u3bPxdRgemFqyK76O8zsjW-Pufs6hbAwJA_Q2TMCmcfcXrKybUQUmEB2qVK3e7oIqsRaa-wGdDycOzeU_EUuBuzav0IpuEqVXPxEaIQfmmYcXymwxXdX3d3nLATg6dvoAeqT03ZfZy4EhCdU9qnD-Pi");'></div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all" data-alt="Nine of Hearts card" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBKDtRRTtqcLPpFDnSBY4F61uL0zrEYqVGLlAbFRrluPUhC_Y5VKDcNuWxvx_BZS8bWyIqYPdxIvuqU3aCMbzN_XjgjT3i5ISOF-iSbg0OJUZVtViAGz1Ey5nxm_Ov5jQg4g3neQ603xudCrRYUqPAF3zguj9VKVp-UJiUbS5cx3DsBof9qOTdiPx8cidPFVO_CgsHrxGvPFStfAosWyu-rppwc8-D13QED1Uc4anRhS-2oNaLwMyA7Y_66Wd_nEKiVx1hZBIdmxhzQ");'></div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all" data-alt="Eight of Diamonds card" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD5MU62P8gPlwZwvD5NKm8qXfN_DCDCZxrpMZJfT5LbKdrjUKEWy_bkr8gQQt7ON1XNyXI2ha-NIbaSTe7eBUDdxaNygDOqVqFg9I14nY9C0iNMm5dsOuEn9O23kNfB1_GIHONq7n4qnTwCgrnQYxk0IXoGSSrv99fL4FyQALWn1mR6ZoFGplvIZZeRBdKN7fN8Wi_w_aDj8Xki1vAfwacPsySSiq2OyiB7Lrw03kfnohNctR0Np-1j96_wr3jAyEZHECR6u31cpChM");'></div>
+</div>
+<div class="flex flex-col gap-3">
+<div class="w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-xl hover:-translate-y-2 transition-all" data-alt="Seven of Clubs card" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD2sPwkCsz6JX4BFRgwdZjsQRuyeclu0E68wjPAksnj7t0n15Dkh7hm4BZRdjzvc8uOMAVQz7CJkoQbFjeC2rsUAdAiAD8cOOjXjwgLUXUnBltuMcH95nlUoaoA_v4IApjxdvDwCknK4o_T0ZWCc_SQlMkOeAIn9ZHN_wyrElTxLgcN7iwKMhpBFY5hsTNTJA1GZx0VqbckolerdWks1LFbZLgI-9uvE0p65gUgdhkThIsiwN2zwvZuu94ggAcB3LGsnvx3sI9Ego2P");'></div>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-center gap-3 pt-6 pb-2">
+<button class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+<span class="material-symbols-outlined mr-2">layers</span>
+                                Lay Group
+                            </button>
+<button class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+<span class="material-symbols-outlined mr-2">linear_scale</span>
+                                Lay Run
+                            </button>
+<button class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+<span class="material-symbols-outlined mr-2">add_circle</span>
+                                Hit Selected
+                            </button>
+<div class="w-px h-8 bg-gray-300 dark:bg-gray-600 mx-3 hidden sm:block"></div>
+<button class="flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white font-bold shadow-lg hover:bg-primary/90 transition-colors">
+                                End Turn
+                            </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>

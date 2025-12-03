@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Screwy Louie - Game Lobby</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "neutral-100": "#f5f5dc", /* Cream */
+              "neutral-200": "#faf9f6", /* Off-white */
+              "primary-calm": "#4A90E2", /* Muted Blue */
+              "secondary-calm": "#888888", /* Warm Gray */
+              "text-calm": "#333333", /* Charcoal */
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-display">
+<div class="relative flex min-h-screen w-full flex-col bg-neutral-200 group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center p-4 sm:p-6 md:p-8">
+<div class="layout-content-container flex flex-col max-w-4xl flex-1 gap-8">
+<!-- Page Heading -->
+<div class="flex flex-col sm:flex-row flex-wrap justify-between items-start sm:items-center gap-4 px-4 py-2">
+<div class="flex flex-col gap-2">
+<h1 class="text-text-calm text-4xl font-black leading-tight tracking-tighter">Game Lobby: Screwy Louie</h1>
+<div class="flex items-center gap-3">
+<p class="text-secondary-calm text-base font-normal leading-normal">Room ID: ABC-123</p>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-3 gap-2 bg-white/80 hover:bg-white text-secondary-calm text-sm font-bold leading-normal tracking-wide border border-secondary-calm/30 shadow-sm">
+<span class="material-symbols-outlined text-base">content_copy</span>
+<span class="truncate">Copy</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Player Slots -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+<!-- Player 1 Card (Empty) -->
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-white border border-gray-200">
+<div class="flex items-center justify-center bg-gray-100 rounded-t-xl h-40">
+<div class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center" data-alt="Empty player avatar placeholder">
+<span class="material-symbols-outlined text-5xl text-gray-400">person_add</span>
+</div>
+</div>
+<div class="flex w-full grow flex-col items-stretch justify-center gap-2 p-6">
+<p class="text-text-calm text-xl font-bold leading-tight">Player 1</p>
+<div class="flex flex-col sm:flex-row items-start sm:items-end gap-3 justify-between">
+<div class="flex flex-col gap-1">
+<p class="text-secondary-calm text-base font-normal leading-normal">Empty Slot</p>
+<p class="text-secondary-calm text-sm font-normal leading-normal">This seat is available.</p>
+</div>
+<button class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-5 bg-primary-calm hover:bg-blue-600 text-white text-base font-bold leading-normal">
+<span class="truncate">Take Seat</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Player 2 Card (Seated) -->
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_8px_rgba(0,0,0,0.05)] bg-white border border-amber-300">
+<div class="flex items-center justify-center bg-amber-50 rounded-t-xl h-40">
+<div class="w-24 h-24 rounded-full bg-amber-100 flex items-center justify-center" data-alt="Seated player avatar for Screwy Louie">
+<span class="material-symbols-outlined text-5xl text-amber-500">person</span>
+</div>
+</div>
+<div class="flex w-full grow flex-col items-stretch justify-center gap-2 p-6">
+<p class="text-text-calm text-xl font-bold leading-tight">Player 2</p>
+<div class="flex flex-col sm:flex-row items-start sm:items-end gap-3 justify-between">
+<div class="flex flex-col gap-1">
+<p class="text-text-calm text-base font-medium leading-normal">Screwy Louie (You)</p>
+<p class="text-secondary-calm text-sm font-normal leading-normal">You are seated and ready.</p>
+</div>
+<button class="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-5 bg-gray-200 hover:bg-gray-300 text-text-calm text-base font-bold leading-normal">
+<span class="truncate">Leave Seat</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Start Match Section -->
+<div class="flex flex-col items-center gap-2 px-4 py-3">
+<button class="flex w-full max-w-sm cursor-not-allowed items-center justify-center overflow-hidden rounded-lg h-14 px-6 bg-secondary-calm/50 text-white/80 text-lg font-bold leading-normal tracking-wide" disabled="">
+<span class="truncate">Start Match</span>
+</button>
+<p class="text-secondary-calm text-sm font-normal leading-normal text-center">Waiting for 1 more player...</p>
+</div>
+<!-- Chat Module -->
+<div class="flex flex-col gap-4 px-4">
+<div class="bg-white rounded-xl shadow-[0_4px_8px_rgba(0,0,0,0.05)] border border-gray-200 p-4 flex flex-col h-64">
+<div class="flex-grow overflow-y-auto space-y-3 pr-2">
+<!-- Chat messages go here -->
+<div class="text-center text-sm text-secondary-calm py-4">Welcome! Say hello.</div>
+<div class="flex">
+<p class="text-sm rounded-lg bg-gray-100 py-2 px-3 max-w-xs"><strong class="font-bold text-text-calm">Screwy Louie:</strong> Hey, ready for a game?</p>
+</div>
+</div>
+<div class="mt-4 flex gap-3">
+<input class="flex-grow w-full rounded-lg border-gray-300 focus:ring-primary-calm focus:border-primary-calm text-sm" placeholder="Type a message..." type="text"/>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-5 bg-primary-calm hover:bg-blue-600 text-white text-base font-bold leading-normal">
+<span class="truncate">Send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

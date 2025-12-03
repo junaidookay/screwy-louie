@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Screwy Louie</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2b8cee",
+              "background-light": "#f6f7f8",
+              "background-dark": "#101922",
+              "button-secondary-light": "#f0f2f5",
+              "button-secondary-dark": "#1b2733",
+              "text-light": "#111418",
+              "text-dark": "#e6edf3"
+            },
+            fontFamily: { display: ["Inter", "sans-serif"] }
+          }
+        }
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'WQHT' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      #discard-top.flip { animation: discardFlip 0.3s ease; }
+      @keyframes discardFlip {
+        0% { transform: rotateY(0deg); }
+        50% { transform: rotateY(90deg); }
+        100% { transform: rotateY(0deg); }
+      }
+      .pulse-success { animation: pulseSuccess 240ms ease; }
+      @keyframes pulseSuccess {
+        0% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+        50% { transform: scale(1.05); box-shadow: 0 6px 22px rgba(43,140,238,0.35); }
+        100% { transform: scale(1); box-shadow: 0 0 0 rgba(0,0,0,0); }
+      }
+      /* Chat panel slide in */
+      #chat-panel { transform: translate(24px, 24px); opacity: 0; pointer-events: none; transition: transform 220ms ease, opacity 220ms ease; }
+      #chat-panel.panel-open { transform: translate(0,0); opacity: 1; pointer-events: auto; }
+      /* New message glow */
+      .msg-highlight { animation: msgGlow 1400ms ease; }
+      @keyframes msgGlow {
+        0% { background: rgba(43,140,238,0.18); }
+        35% { background: rgba(43,140,238,0.10); }
+        70% { background: rgba(43,140,238,0.06); }
+        100% { background: transparent; }
+      }
+    </style>
+    <style>
+      select { padding-right: 2rem !important; }
+    </style>
+    <style>
+      :root { font-size: 16px; }
+      :root[data-text-size='lg'] { font-size: 18px; }
+      body { font-family: system-ui, sans-serif; margin: 0; }
+      body { background: #f6f7f8; color: #111418; }
+      .dark body { background: #101922; color: #e6edf3; }
+      header { padding: 12px 16px; }
+      .hc .shadow-sm { box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+      .hc .border { border-color: #000; }
+      .hc.dark .border { border-color: #fff; }
+    </style>
+    <style>
+      select { padding-right: 2rem !important; background-color: #ffffff; color: #111418; border-color: #d1d5db; }
+      .dark select { background-color: rgba(16,25,34,0.5); color: #e6edf3; border-color: #374151; }
+      .discard-empty { filter: saturate(0.9) opacity: 0.7; border: 1px dashed #d1d5db; background-size: cover; background-position: center; }
+      :root:not(.dark) #btn-draw { background-color: #f3f4f6; border: 1px solid #d1d5db; }
+      :root:not(.dark) #btn-draw:hover { background-color: #e5e7eb; }
+      :root:not(.dark) #btn-draw-discard { background-color: #f3f4f6; border: 1px solid #d1d5db; }
+      :root:not(.dark) #btn-draw-discard:hover { background-color: #e5e7eb; }
+      .player .hand { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+      .player .card { width: 110px; aspect-ratio: 3/4; background: #ffffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #e5e7eb; }
+      .dark .player .card { background: #0f172a; border-color: #334155; }
+      .player .card.selected { outline: 3px solid #3b82f6; outline-offset: -3px; }
+      .player .card img { width: 100%; height: 100%; object-fit: contain; }
+      .player { position: relative; }
+      @keyframes scorePop { 0% { transform: translateX(-50%) scale(0.8); opacity: 0; } 15% { transform: translateX(-50%) scale(1.15); opacity: 1; } 100% { transform: translateX(-50%) scale(1); opacity: 0; } }
+      .score-pop { position: absolute; left: 50%; top: -6px; z-index: 50; font-weight: 900; font-size: 1.5rem; pointer-events: none; animation: scorePop 1.6s ease forwards; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+      .text-score-green { color: #10b981; }
+      .text-score-yellow { color: #f59e0b; }
+      .text-score-red { color: #ef4444; }
+      /* Ensure chat unread badge sits above button border and isn't clipped */
+      #btn-toggle-chat { overflow: visible !important; }
+      #chat-unread { position: absolute; top: -6px; right: -6px; z-index: 20; box-shadow: 0 0 0 2px #fff; }
+      .dark #chat-unread { box-shadow: 0 0 0 2px #0f172a; }
+      /* Mobile polish */
+      @media (max-width: 480px) {
+        .lobby-seat-actions { flex-wrap: wrap; gap: 8px; }
+        #btn-slot1-take, #btn-slot1-leave, #btn-slot1-ready,
+        #btn-slot2-take, #btn-slot2-leave, #btn-slot2-ready {
+          min-width: 100px; white-space: nowrap; height: 2rem !important; padding: 0 0.5rem !important; font-size: 0.85rem;
+        }
+        #hit-controls { flex-wrap: wrap; justify-content: center; gap: 8px; }
+        #sel-hit-player, #sel-hit-type, #sel-hit-index { min-width: 100px; height: font-size: 0.85rem; }
+        #btn-hit { width: 100%; max-width: 260px; height: font-size: 0.9rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="page-title" class="hidden">
+      <div class="flex min-h-screen w-full flex-col items-center justify-center bg-background-light dark:bg-background-dark p-4">
+        <div class="flex flex-col max-w-[960px] items-center w-full">
+          <h1 class="text-text-light dark:text-background-light text-5xl font-bold text-center pb-6">Screwy Louie</h1>
+          <div class="flex w-full max-w-sm flex-col gap-4 p-4">
+            <button id="btn-title-play" class="h-16 rounded-lg bg-primary text-white text-xl font-bold">Play Game</button>
+            <button id="btn-title-settings" class="h-14 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light text-lg font-bold">Settings</button>
+            <button id="btn-title-help" class="h-14 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light text-lg font-bold">Help</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="page-profile" class="hidden">
+      <div class="flex min-h-screen w-full flex-col items-center justify-center bg-background-light dark:bg-background-dark p-4">
+        <div class="flex w-full max-w-lg flex-col items-center gap-6">
+          <div class="flex w-full flex-col gap-3 text-center">
+            <h1 class="text-text-light dark:text-text-dark text-4xl font-black">Who's Playing?</h1>
+          </div>
+          <div class="w-full space-y-4 pt-2">
+            <div class="flex w-full flex-wrap items-end">
+              <label class="flex w-full flex-col">
+                <p class="text-text-light dark:text-text-dark text-base font-medium pb-2">Your Name</p>
+                <input id="name-entry" class="form-input text-lg w-full rounded-xl text-text-light dark:text-text-dark border bg-white dark:bg-background-dark/50 h-16 p-4" placeholder="Enter Your Name" />
+              </label>
+            </div>
+          </div>
+          <div class="flex w-full pt-2">
+            <button id="btn-name-continue" class="w-full h-14 rounded-xl bg-primary text-white text-lg font-bold">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="page-find" class="hidden">
+      <div class="flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+        <div class="flex flex-1 justify-center py-5 px-4">
+          <div class="flex flex-col max-w-5xl w-full">
+            <div class="flex items-center justify-between border-b px-4 py-4">
+              <h2 class="text-2xl font-bold">Screwy Louie</h2>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-4 p-4">
+              <h1 class="text-4xl font-black">Game Lobby</h1>
+            </div>
+            <div class="flex gap-4 p-4 flex-wrap items-center">
+              <button id="btn-find-create" class="h-14 px-8 rounded-lg bg-primary text-white text-lg font-bold">Create Room</button>
+              <div class="flex gap-2 items-center">
+                <input id="find-room-id" class="h-14 px-3 rounded-lg border bg-white dark:bg-gray-800" placeholder="Room ID" />
+                <button id="btn-find-join" class="h-14 px-8 rounded-lg bg-black/5 dark:bg-white/5 text-lg font-bold">Join by ID</button>
+              </div>
+              <div class="flex gap-2 items-center">
+                <label for="find-match-limit" class="text-sm">Match Limit</label>
+                <select id="find-match-limit" class="h-12 rounded-lg border px-2">
+                  <option value="20">20 min</option>
+                  <option value="30" selected>30 min</option>
+                  <option value="45">45 min</option>
+                </select>
+              </div>
+            </div>
+            <h2 class="text-3xl font-bold px-4 pb-2 pt-4">Active Games</h2>
+            <div id="find-list" class="grid gap-6 p-4"></div>
+            <div class="flex items-center justify-center p-6">
+              <button id="btn-find-refresh" class="h-12 px-6 rounded-lg bg-primary text-white font-bold">Refresh</button>
+            </div>
+            <h2 class="text-3xl font-bold px-4 pb-2 pt-2">Recent Games</h2>
+            <div id="recent-list" class="grid gap-6 p-4"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="page-lobby" class="hidden">
+      <div class="flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark">
+        <div class="flex flex-1 justify-center p-4">
+          <div class="flex flex-col max-w-4xl w-full gap-6">
+            <div class="flex justify-between items-center px-4 py-2">
+              <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-black">Game Lobby</h1>
+                <span id="lobby-room-id" class="text-base">Room:</span>
+                <button id="btn-copy-room" class="h-9 px-3 rounded-lg border">Copy</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-4">
+              <div class="rounded-xl border bg-white dark:bg-gray-800 p-6">
+                <p class="text-xl font-bold">Player 1</p>
+                <p id="slot1-status" class="text-sm">Empty Slot</p>
+                <p id="slot1-ready" class="text-xs text-gray-600 dark:text-gray-300">Not Ready</p>
+                <div class="pt-2 flex gap-2 lobby-seat-actions">
+                  <button id="btn-slot1-take" class="h-10 px-5 rounded-lg bg-primary text-white">Take Seat</button>
+                  <button id="btn-slot1-leave" class="h-10 px-5 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light">Leave Seat</button>
+                  <button id="btn-slot1-ready" class="h-10 px-5 rounded-lg bg-green-600 text-white">Ready</button>
+                </div>
+              </div>
+              <div class="rounded-xl border bg-white dark:bg-gray-800 p-6">
+                <p class="text-xl font-bold">Player 2</p>
+                <p id="slot2-status" class="text-sm">Empty Slot</p>
+                <p id="slot2-ready" class="text-xs text-gray-600 dark:text-gray-300">Not Ready</p>
+                <div class="pt-2 flex gap-2 lobby-seat-actions">
+                  <button id="btn-slot2-take" class="h-10 px-5 rounded-lg bg-primary text-white">Take Seat</button>
+                  <button id="btn-slot2-leave" class="h-10 px-5 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light">Leave Seat</button>
+                  <button id="btn-slot2-ready" class="h-10 px-5 rounded-lg bg-green-600 text-white">Ready</button>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col items-center gap-2 px-4 py-3">
+              <button id="btn-lobby-start" class="h-14 px-6 rounded-lg bg-primary text-white text-lg font-bold">Start Match</button>
+              <div class="flex items-center gap-3">
+                <span id="lobby-ready-chip" class="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-sm">0/2 ready</span>
+                <span id="lobby-timer" class="text-sm text-gray-700 dark:text-gray-300">02:00</span>
+                <button id="btn-lobby-extend" class="h-9 px-3 rounded-lg bg-black/5 dark:bg-white/10 text-sm">Wait +30s</button>
+              </div>
+              
+              <div class="flex items-center gap-3 pt-1">
+                <button id="btn-lobby-leave" class="h-10 px-4 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light">Leave Lobby</button>
+              </div>
+              <p id="lobby-status" class="text-sm"></p>
+            </div>
+            <div class="px-4">
+              <div class="rounded-xl border p-4 flex flex-col h-64 bg-white dark:bg-gray-800">
+                <div id="lobby-chat-log" class="flex-grow overflow-y-auto space-y-3 pr-2"></div>
+                <div class="mt-4 flex gap-3">
+                  <input id="lobby-chat-input" class="flex-grow h-10 rounded-lg border px-3 bg-white dark:bg-background-dark/50 text-text-light dark:text-text-dark placeholder-gray-500 dark:placeholder-gray-400 border-gray-300 dark:border-gray-700" placeholder="Type a message..." />
+                  <button id="lobby-chat-send" class="h-10 px-5 rounded-lg bg-primary text-white">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="page-game" class="hidden">
+      <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-y-auto font-display bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200">
+        <div class="layout-container flex h-full grow flex-col">
+          <header class="flex items-center justify-between whitespace-nowrap border-b border-gray-200 dark:border-gray-800 px-6 py-3 bg-white dark:bg-background-dark shadow-sm">
+            <div class="flex items-center gap-4 text-[#111418] dark:text-white">
+              <div class="size-6 text-primary">
+                <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                  <path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+              </div>
+              <h2 class="text-lg font-bold leading-tight tracking-[-0.015em] dark:text-gray-100">Screwy Louie</h2>
+            </div>
+            <div class="flex flex-1 justify-end items-center gap-6">
+              <div class="flex gap-2">
+                <button id="btn-toggle-chat" class="relative flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-background-light dark:bg-gray-800 text-[#111418] dark:text-gray-200 gap-2 text-sm font-bold leading-normal min-w-0 px-2.5 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-expanded="false" aria-controls="chat-panel">
+                  <span class="material-symbols-outlined text-xl">chat_bubble</span>
+                  <span id="chat-unread" class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-white text-[11px] leading-[18px] text-center"></span>
+                </button>
+              </div>
+              <div class="flex gap-2">
+                <button id="btn-match-leave" class="flex items-center justify-center h-10 px-3 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light font-bold">Leave Match</button>
+              </div>
+              <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDIPlg1Wh6yJaO8vIesVixTkP4yEDFeZmK2_rcFrwOBYfw-Eb-iHJw94eGv7RFWNK2txzWBu-GMPRxRCSQkLFqeLL7SYDIfmJhGV9-sShYNSQSZfKFMRTWyEHmJvRkug6GbuDATI6paMpEPb6nqAjY5Kgc-2MNidljfah0sNf-TvvnDEdGYAJWfKoZq-nAdAS0teD8BIECWq5sZJVmlWZh-wezStJCgBGgM5AFNYQ5kVhalrwvX6A7e-6HeHOUKFcFmGSuArSpemt66');"></div>
+            </div>
+          </header>
+          <main class="flex-1 flex flex-col p-4 md:p-6 lg:p-8 pb-24">
+            <div class="flex justify-center w-full">
+              <div class="w-full max-w-7xl flex flex-col items-center">
+                <h2 id="status" class="text-[#111418] dark:text-gray-100 tracking-light text-2xl sm:text-[28px] font-bold leading-tight text-center pb-2 pt-2">Your Turn!</h2>
+                <p class="text-[#617589] dark:text-gray-400 text-sm font-normal leading-normal pb-3 text-center">Select cards from your hand to make a play.</p>
+                <div class="flex gap-4 py-4 px-4 w-full max-w-sm">
+                  <div class="flex grow basis-0 flex-col items-stretch gap-2">
+                    <div class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-white dark:bg-gray-800 shadow-sm">
+                      <p id="timer-hours" class="text-[#111418] dark:text-gray-100 text-lg font-bold leading-tight tracking-[-0.015em]">00</p>
+                    </div>
+                    <div class="flex items-center justify-center"><p class="text-[#617589] dark:text-gray-400 text-xs font-normal leading-normal">Hours</p></div>
+                  </div>
+                  <div class="flex grow basis-0 flex-col items-stretch gap-2">
+                    <div class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-white dark:bg-gray-800 shadow-sm">
+                      <p id="timer-minutes" class="text-[#111418] dark:text-gray-100 text-lg font-bold leading-tight tracking-[-0.015em]">00</p>
+                    </div>
+                    <div class="flex items-center justify-center"><p class="text-[#617589] dark:text-gray-400 text-xs font-normal leading-normal">Minutes</p></div>
+                  </div>
+                  <div class="flex grow basis-0 flex-col items-stretch gap-2">
+                    <div class="flex h-14 grow items-center justify-center rounded-lg px-3 bg-primary text-white shadow-sm">
+                      <p id="timer-seconds" class="text-lg font-bold leading-tight tracking-[-0.015em]">00</p>
+                    </div>
+                    <div class="flex items-center justify-center"><p class="text-[#617589] dark:text-gray-400 text-xs font-normal leading-normal">Seconds</p></div>
+                  </div>
+                </div>
+                <div class="w-full bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg my-6 flex-1 min-h-[200px] flex items-center justify-center p-6">
+                  <div class="flex items-center gap-6">
+                  <div class="flex flex-col items-center">
+                      <p class="text-xs text-gray-500">Draw Pile</p>
+                      <div id="draw-back" class="w-12 h-16 rounded-md border border-gray-200 dark:border-gray-700 bg-center bg-no-repeat bg-contain" style="background-image: url('Card Game Assets/Cards/Branded Card Back.png');"></div>
+                      <p id="draw-size" class="text-sm font-semibold"></p>
+                      <button id="btn-draw" class="mt-2 h-10 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm">Draw</button>
+                    </div>
+                    <div class="w-px h-16 bg-gray-200 dark:bg-gray-700"></div>
+                    <div class="flex flex-col items-center">
+                      <p class="text-xs text-gray-500">Discard Top</p>
+                      <div id="discard-top" class="w-24 bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md"></div>
+                      <button id="btn-draw-discard" class="mt-2 h-10 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm">Draw Discard</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sticky bottom-0 left-0 right-0 pt-4 border-t border-gray-200 dark:border-gray-800 bg-background-light/95 dark:bg-background-dark/90 backdrop-blur z-10">
+              <div class="w-full max-w-7xl mx-auto px-4">
+                <div id="hand-grid" class="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3 p-4 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50"></div>
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-6 pb-2">
+                  <button id="btn-lay-group" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    <span class="material-symbols-outlined mr-2">layers</span>
+                    Lay Group
+                  </button>
+                  <button id="btn-lay-run" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                    <span class="material-symbols-outlined mr-2">linear_scale</span>
+                    Lay Run
+                  </button>
+                  <div id="hit-controls" class="flex items-center gap-2">
+                    <select id="sel-hit-player" class="h-12 rounded-lg border px-3"></select>
+                    <select id="sel-hit-type" class="h-12 rounded-lg border px-3">
+                      <option value="group">Group</option>
+                      <option value="run">Run</option>
+                    </select>
+                    <select id="sel-hit-index" class="h-12 rounded-lg border px-3"></select>
+                    <button id="btn-hit" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                      <span class="material-symbols-outlined mr-2">add_circle</span>
+                      Hit Selected
+                    </button>
+                  </div>
+                  <div class="w-px h-8 bg-gray-300 dark:bg-gray-600 mx-3 hidden sm:block"></div>
+                  <button id="btn-end" class="flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white font-bold shadow-lg hover:bg-primary/90 transition-colors">
+                    End Turn
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div id="players" class="hidden"></div>
+            <div id="scoreboard" class="hidden">
+              <div id="scores"></div>
+              <button id="btn-next-hand"></button>
+            </div>
+            <div id="chat-panel" class="fixed right-4 bottom-24 z-20 w-[360px] max-w-[92vw] rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl">
+              <div class="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                <p class="text-sm font-semibold">Room Chat</p>
+                <button id="btn-close-chat" class="rounded-md h-8 w-8 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+              <div id="chat-log" class="max-h-[40vh] overflow-y-auto px-3 py-2 text-sm space-y-2"></div>
+              <div class="flex gap-2 px-3 py-3 border-t border-gray-200 dark:border-gray-700">
+                <input id="chat-input" class="flex-grow h-10 rounded-lg border px-3" placeholder="Message" />
+                <button id="chat-send" class="h-10 px-4 rounded-lg bg-primary text-white">Send</button>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+    <div id="page-hand-results" class="hidden">
+      <div class="relative flex min-h-screen w-full flex-col overflow-y-auto bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+        <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
+          <div class="flex flex-col max-w-[960px] flex-1 py-10 w-full">
+            <div class="flex flex-wrap justify-center text-center gap-3 p-4">
+              <div class="flex w-full flex-col gap-3">
+                <p id="hr-title" class="text-4xl font-black leading-tight tracking-[-0.033em] text-text-light dark:text-white">Hand Score</p>
+                <p id="hr-sub" class="text-[#617589] dark:text-gray-400 text-lg font-normal leading-normal"></p>
+              </div>
+            </div>
+            <div class="px-4 py-8">
+              <div class="flex overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
+                <table class="flex-1">
+                  <thead class="bg-background-light/50 dark:bg-white/5">
+                    <tr>
+                      <th class="px-4 py-4 text-left text-text-light dark:text-white text-base font-medium leading-normal w-[40%]">Player Name</th>
+                      <th class="px-4 py-4 text-right text-text-light dark:text-white text-base font-medium leading-normal w-[30%]">Hand Score</th>
+                      <th class="px-4 py-4 text-right text-text-light dark:text-white text-base font-medium leading-normal w-[30%]">Total Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="hr-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="flex justify-center pt-5">
+              <div class="flex w-full max-w-[480px] flex-col items-stretch gap-4 px-4 py-3">
+                <button id="btn-next-hand" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-primary text-white text-lg font-bold leading-normal tracking-[0.015em] w-full transition-colors hover:bg-primary/90">Start Next Hand</button>
+                <button id="btn-hand-back" class="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-gray-200 dark:bg-gray-700 text-text-light dark:text-text-dark text-lg font-bold leading-normal tracking-[0.015em] w-full">Return to Lobby</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-summary" class="hidden">
+      <div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-y-auto font-display">
+        <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center items-center py-10 sm:py-20">
+          <div class="flex flex-col max-w-[960px] flex-1 w-full">
+            <div class="flex flex-col items-center justify-center">
+              <h1 class="text-white tracking-light text-4xl md:text-5xl font-bold leading-tight text-center pb-8 pt-6">Game Over!</h1>
+            </div>
+            <div class="flex flex-col gap-6 items-center w-full">
+              <div class="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">Final Scores</h2>
+                <div class="flex overflow-hidden rounded-lg">
+                  <table class="flex-1">
+                    <thead class="sr-only">
+                      <tr>
+                        <th>Player</th>
+                        <th>Final Score</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ms-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="flex justify-center w-full mt-6">
+                <div class="flex flex-1 gap-4 max-w-md flex-col items-stretch px-4 py-3">
+                  <button id="btn-play-again" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-primary text-white text-xl font-bold leading-normal tracking-[0.015em] w-full transition-transform hover:scale-105">Play Again</button>
+                  <button id="btn-return-menu" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-white dark:bg-gray-800 text-primary text-xl font-bold leading-normal tracking-[0.015em] w-full transition-transform hover:scale-105">Return to Menu</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-settings" class="hidden">
+      <div class="relative flex min-h-screen w-full flex-col overflow-y-auto bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+        <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-10">
+          <div class="flex flex-col max-w-[960px] flex-1 w-full">
+            <div class="flex flex-wrap justify-center text-center gap-3 p-4">
+              <div class="flex w-full flex-col gap-3">
+                <p class="text-4xl font-black leading-tight tracking-[-0.033em] text-text-light dark:text-white">Settings</p>
+                <p class="text-[#617589] dark:text-gray-400 text-lg font-normal leading-normal">Customize your experience</p>
+              </div>
+            </div>
+            <div class="px-4 py-8">
+              <div class="flex overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
+                <div class="flex-1 p-6">
+                  <div class="grid gap-6">
+                    <label class="flex items-center justify-between">
+                      <span class="text-base font-medium">Theme</span>
+                      <select id="opt-theme" class="h-12 rounded-lg border px-3">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                      </select>
+                    </label>
+                    <label class="flex items-center justify-between">
+                      <span class="text-base font-medium">Text Size</span>
+                      <select id="opt-text-size" class="h-12 rounded-lg border px-3">
+                        <option value="md">Medium</option>
+                        <option value="lg">Large</option>
+                      </select>
+                    </label>
+                    <label class="flex items-center justify-between">
+                      <span class="text-base font-medium">High Contrast</span>
+                      <input id="opt-high-contrast" type="checkbox" class="h-5 w-5" />
+                    </label>
+                  </div>
+                  <div class="flex justify-center gap-3 pt-6">
+                    <button id="btn-save-settings" class="h-12 px-6 rounded-lg bg-primary text-white text-lg font-bold">Save</button>
+                    <button id="btn-settings-back" class="h-12 px-6 rounded-lg bg-black/5 dark:bg-white/5 text-lg font-bold">Back</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="page-help" class="hidden">
+      <div class="relative flex min-h-screen w-full flex-col overflow-y-auto bg-background-light dark:bg-background-dark font-display text-text-light dark:text-text-dark">
+        <div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-10">
+          <div class="flex flex-col max-w-[960px] flex-1 w-full">
+            <div class="flex flex-wrap justify-center text-center gap-3 p-4">
+              <div class="flex w-full flex-col gap-3">
+                <p class="text-4xl font-black leading-tight tracking-[-0.033em] text-text-light dark:text-white">Help</p>
+                <p class="text-[#617589] dark:text-gray-400 text-lg font-normal leading-normal">How to Play</p>
+              </div>
+            </div>
+            <div class="px-4 py-8">
+              <div class="flex overflow-hidden rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-background-dark shadow-sm">
+                <div class="flex-1 p-6">
+                  <div id="help-content" class="text-lg">Screwy Louie is a friendly, rummy‑style game. Draw a card, discard a card, lay groups and runs, and after laying your phase you can hit onto other groups or runs. Avoid holding points when a hand ends.</div>
+                  <div class="flex justify-center pt-6">
+                    <button id="btn-help-back" class="h-12 px-6 rounded-lg bg-black/5 dark:bg-white/5 text-lg font-bold">Back to Menu</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <header id="app-header">
+      <div class="row">
+        <div class="title">Screwy Louie — Local Pass-and-Play</div>
+        <div id="status"></div>
+      </div>
+      <div class="row">
+        <div class="panel">
+          <input id="mp-name" placeholder="Your name" />
+          <button id="mp-create">Create Room</button>
+          <input id="mp-room" placeholder="Room ID" />
+          <button id="mp-join">Join Room</button>
+          <button id="mp-spectate">Spectate</button>
+          <button id="mp-start">Start Match</button>
+          <span id="mp-info"></span>
+          <input id="mp-timer" type="number" min="5" max="120" step="5" placeholder="Timer (s)" />
+          <button id="mp-set-timer">Set Timer</button>
+          <button id="mp-copy">Copy Room ID</button>
+          <button id="mp-leave">Leave Seat</button>
+          <button id="mp-take">Take Seat</button>
+          <input id="mp-player" placeholder="Player ID" />
+          <button id="mp-resume">Resume Seat</button>
+          <input id="mp-seat" type="number" min="1" step="1" placeholder="Seat #" />
+          <button id="mp-switch">Switch Seat</button>
+          <button id="mp-take-at">Take Seat #</button>
+          <button id="btn-browse">Browse Matches</button>
+          <button id="btn-refresh">Refresh</button>
+          <select id="sel-filter">
+            <option value="all">All</option>
+            <option value="lobby">Lobby</option>
+            <option value="active">Active</option>
+            <option value="complete">Complete</option>
+          </select>
+          <label><input id="chk-auto" type="checkbox" /> Auto Refresh</label>
+          <select id="sel-match"></select>
+          <button id="btn-watch">Watch</button>
+          <button id="btn-play">Play</button>
+        </div>
+      </div>
+    </header>
+    <main id="app-main" class="hidden">
+      <div class="row">
+        <div class="pile">
+          <div>Draw Pile</div>
+          <div id="draw-size"></div>
+          <div class="panel">
+            <button id="btn-draw">Draw</button>
+          </div>
+        </div>
+        <div class="pile">
+          <div>Discard Pile</div>
+          <div id="discard-top"></div>
+          <div class="panel">
+            <button id="btn-draw-discard">Draw Discard</button>
+          </div>
+        </div>
+        <div class="pile">
+          <div>Actions</div>
+          <div class="panel">
+            <select id="sel-target"></select>
+            <button id="btn-give">Give Discard To</button>
+            <button id="btn-discard" disabled>Discard Selected</button>
+            <button id="btn-end" disabled>End Turn</button>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="pile">
+          <div>Phase</div>
+          <div class="panel">
+            <button id="btn-lay-group">Lay Group</button>
+            <button id="btn-lay-run">Lay Run</button>
+            <button id="btn-reset">Reset Selection</button>
+          </div>
+        </div>
+        <div class="pile">
+          <div>Hit</div>
+          <div class="panel">
+            <select id="sel-hit-player"></select>
+            <select id="sel-hit-type">
+              <option value="group">Group</option>
+              <option value="run">Run</option>
+            </select>
+            <select id="sel-hit-index"></select>
+            <button id="btn-hit">Hit Selected</button>
+          </div>
+        </div>
+      </div>
+      <div class="players" id="players"></div>
+      <div class="pile">
+        <div class="title">Spectators</div>
+        <div id="spectators"></div>
+      </div>
+      <div class="pile">
+        <div class="title">Room Chat</div>
+        <div id="chat-log" style="max-height:160px; overflow:auto;"></div>
+        <div class="panel">
+          <input id="chat-input" placeholder="Message" />
+          <button id="chat-send">Send</button>
+        </div>
+      </div>
+      <div id="scoreboard" style="display:none;">
+        <div class="pile">
+          <div class="title">Hand Complete</div>
+          <div id="scores"></div>
+          <div class="panel">
+            <button id="btn-next-hand">Start Next Hand</button>
+          </div>
+        </div>
+      </div>
+      <div class="pile">
+        <div class="title">Room Events</div>
+        <div id="event-log" style="max-height:160px; overflow:auto;"></div>
+        <div class="title">Spectators</div>
+        <div id="spectators"></div>
+        <div class="title">Room Chat</div>
+        <div id="chat-log" style="max-height:160px; overflow:auto;"></div>
+        <div class="panel">
+          <input id="chat-input" placeholder="Message" />
+          <button id="chat-send">Send</button>
+        </div>
+      </div>
+    </main>
+    <script type="module" src="/src/client/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>How to Play Screwy Louie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#4A90E2", // Soft Blue
+                        "background-light": "#F8F5F2", // Off-white/light cream
+                        "background-dark": "#1d1c1a", // Darker cream for dark mode
+                        "text-light": "#333333", // Dark Charcoal
+                        "text-dark": "#e5e3e0",
+                        "border-light": "#e0dcd7",
+                        "border-dark": "#3a3835",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2c2a28",
+                        "subtle-text-light": "#615b54",
+                        "subtle-text-dark": "#a19c96"
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    fontSize: {
+                        'lg': '1.125rem', // 18px
+                        'xl': '1.25rem', // 20px
+                    },
+                    lineHeight: {
+                        'loose': '1.6',
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5 sm:px-10 md:px-20 lg:px-40">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-10 py-4 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-sm z-10">
+<div class="flex items-center gap-4 text-text-light dark:text-text-dark">
+<span class="material-symbols-outlined text-2xl text-primary">help</span>
+<h2 class="text-text-light dark:text-text-dark text-xl font-bold leading-tight tracking-[-0.015em]">How to Play</h2>
+</div>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] gap-2">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="truncate hidden sm:inline">Back</span>
+</button>
+</header>
+<main class="flex-1 px-4 sm:px-10 py-8">
+<div class="flex flex-wrap justify-between gap-4 pb-8">
+<h1 class="text-text-light dark:text-text-dark text-4xl sm:text-5xl font-black leading-tight tracking-[-0.033em] min-w-72">How to Play Screwy Louie</h1>
+</div>
+<div class="flex flex-col gap-4">
+<details class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-5 py-2 group" open="">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-3">
+<p class="text-text-light dark:text-text-dark text-lg sm:text-xl font-medium leading-normal">The Goal of the Game</p>
+<span class="material-symbols-outlined text-text-light dark:text-text-dark group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pb-3">
+<p class="text-subtle-text-light dark:text-subtle-text-dark text-base sm:text-lg font-normal leading-loose">The main goal is to avoid taking tricks that contain the 'Screwy Louie' card, which is the Queen of Spades. Players try to score the fewest points possible over several rounds.</p>
+</div>
+</details>
+<details class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-5 py-2 group">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-3">
+<p class="text-text-light dark:text-text-dark text-lg sm:text-xl font-medium leading-normal">Game Setup</p>
+<span class="material-symbols-outlined text-text-light dark:text-text-dark group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pb-3">
+<p class="text-subtle-text-light dark:text-subtle-text-dark text-base sm:text-lg font-normal leading-loose">A standard 52-card deck is used. Cards are dealt one by one to each player until the deck is gone. The player with the Two of Clubs starts the first trick.</p>
+</div>
+</details>
+<details class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-5 py-2 group">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-3">
+<p class="text-text-light dark:text-text-dark text-lg sm:text-xl font-medium leading-normal">Playing a Round</p>
+<span class="material-symbols-outlined text-text-light dark:text-text-dark group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pb-3">
+<p class="text-subtle-text-light dark:text-subtle-text-dark text-base sm:text-lg font-normal leading-loose">Players must follow the suit of the first card played in a trick if they can. The player who plays the highest card of the leading suit wins the trick. The winner of a trick leads the next one.</p>
+</div>
+</details>
+<details class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-5 py-2 group">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-3">
+<p class="text-text-light dark:text-text-dark text-lg sm:text-xl font-medium leading-normal">Scoring</p>
+<span class="material-symbols-outlined text-text-light dark:text-text-dark group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pb-3">
+<p class="text-subtle-text-light dark:text-subtle-text-dark text-base sm:text-lg font-normal leading-loose">At the end of a round, each Heart card taken in a trick is worth 1 point. The Queen of Spades (Screwy Louie) is worth 13 points. The game ends when a player reaches 100 points; the player with the lowest score wins.</p>
+</div>
+</details>
+<details class="flex flex-col rounded-xl border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark px-5 py-2 group">
+<summary class="flex cursor-pointer items-center justify-between gap-6 py-3">
+<p class="text-text-light dark:text-text-dark text-lg sm:text-xl font-medium leading-normal">Tips for Beginners</p>
+<span class="material-symbols-outlined text-text-light dark:text-text-dark group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="pb-3">
+<p class="text-subtle-text-light dark:text-subtle-text-dark text-base sm:text-lg font-normal leading-loose">Try to get rid of high-value cards (especially Spades) early in the game to avoid taking the Queen. Pay attention to which cards have been played to anticipate what other players might have.</p>
+</div>
+</details>
+</div>
+<div class="flex px-4 py-12 justify-center">
+<button class="flex min-w-[84px] w-full sm:w-auto max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-xl h-14 px-6 bg-primary text-white gap-3 text-xl font-bold leading-normal tracking-[0.015em]">
+<span class="material-symbols-outlined text-3xl">arrow_back</span>
+<span class="truncate">Back to Game</span>
+</button>
+</div>
+</main>
+<footer class="mt-auto px-4 sm:px-10">
+<p class="text-subtle-text-light dark:text-subtle-text-dark text-sm font-normal leading-normal py-4 text-center border-t border-solid border-border-light dark:border-border-dark">© 2023 Screwy Louie. All rights reserved.</p>
+</footer>
+</div>
+</div>
+</div>
+</div>
+</body></html>

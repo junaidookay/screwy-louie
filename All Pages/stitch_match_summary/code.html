@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Screwy Louie - Final Scores</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400,700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#2A5A48", // Deep forest green
+              "background-light": "#556B2F", // Dark olive green
+              "background-dark": "#36454F", // Charcoal gray
+              "card-background": "#F5F5DC", // Off-white/cream
+              "card-text": "#36454F", // Charcoal gray
+              "accent": "#DAA520", // Soft gold
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col bg-background-light dark:bg-background-dark group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center items-center py-10 sm:py-20">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1 w-full">
+<!-- Header Banner -->
+<div class="flex flex-col items-center justify-center">
+<h1 class="text-card-background tracking-light text-4xl md:text-5xl font-bold leading-tight text-center pb-8 pt-6">Game Over!</h1>
+</div>
+<!-- Score Card/Table -->
+<div class="flex flex-col gap-6 items-center w-full">
+<div class="w-full max-w-2xl bg-card-background rounded-xl shadow-lg p-6 md:p-8">
+<h2 class="text-2xl font-bold text-card-text mb-6 text-center">Final Scores</h2>
+<div class="flex overflow-hidden rounded-lg">
+<table class="flex-1">
+<thead class="sr-only">
+<tr>
+<th class="px-4 py-3 text-left text-card-text text-base font-medium leading-normal">Player</th>
+<th class="px-4 py-3 text-right text-card-text text-base font-medium leading-normal">Final Score</th>
+<th class="px-4 py-3 text-right text-card-text text-base font-medium leading-normal">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-b-gray-300/50">
+<td class="h-[72px] px-4 py-3 text-card-text text-lg font-medium leading-normal">Screwy Louie</td>
+<td class="h-[72px] px-4 py-3 text-card-text text-lg font-bold leading-normal text-right">210</td>
+<td class="h-[72px] px-4 py-3 w-28 sm:w-32 text-right">
+<div class="flex items-center justify-end gap-2 text-accent text-lg font-bold">
+<span class="material-symbols-outlined text-2xl" data-icon="crown">workspace_premium</span>
+<span>Winner</span>
+</div>
+</td>
+</tr>
+<tr class="border-b border-b-gray-300/50">
+<td class="h-[72px] px-4 py-3 text-card-text text-lg font-medium leading-normal">Player 2</td>
+<td class="h-[72px] px-4 py-3 text-card-text text-lg font-bold leading-normal text-right">185</td>
+<td class="h-[72px] px-4 py-3 w-28 sm:w-32"></td>
+</tr>
+<tr>
+<td class="h-[72px] px-4 py-3 text-card-text text-lg font-medium leading-normal">Player 3</td>
+<td class="h-[72px] px-4 py-3 text-card-text text-lg font-bold leading-normal text-right">150</td>
+<td class="h-[72px] px-4 py-3 w-28 sm:w-32"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Button Group -->
+<div class="flex justify-center w-full mt-6">
+<div class="flex flex-1 gap-4 max-w-md flex-col items-stretch px-4 py-3">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-primary text-white text-xl font-bold leading-normal tracking-[0.015em] w-full transition-transform hover:scale-105">
+<span class="truncate">Play Again</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-5 bg-card-background text-primary text-xl font-bold leading-normal tracking-[0.015em] w-full transition-transform hover:scale-105">
+<span class="truncate">Return to Menu</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

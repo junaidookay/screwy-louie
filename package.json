@@ -1,0 +1,24 @@
+{
+  "name": "screwy-louie",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc -p tsconfig.json",
+    "simulate": "node dist/sim/simulate.js",
+    "dev": "vite",
+    "serve": "node dist/server/index.js",
+    "dev:all": "npm run build && powershell -NoProfile -ExecutionPolicy Bypass -Command \"Start-Process node -ArgumentList 'dist/server/index.js'; npm run dev\""
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/uuid": "^10.0.0",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.9"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "uuid": "^9.0.1"
+  }
+}

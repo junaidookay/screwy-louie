@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Screwy Louie - Game Lobby</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,0" rel="stylesheet"/>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24
+      }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#004d40", // Deep forest green
+              "background-light": "#F8F8F8", // Off-white/light beige
+              "background-dark": "#101922",
+              "text-light": "#333333", // Dark grey for light mode
+              "text-dark": "#E0E0E0", // Light grey for dark mode
+              "card-light": "#FFFFFF",
+              "card-dark": "#1C2A38",
+              "border-light": "#EAEAEA",
+              "border-dark": "#2D3F50",
+              "subtle-light": "#666666",
+              "subtle-dark": "#99A9B9",
+              "status-lobby": "#4CAF50", // Green
+              "status-progress": "#2196F3", // Blue
+              "status-complete": "#9E9E9E", // Grey
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<div class="flex flex-1 justify-center py-5 sm:px-10 lg:px-20 xl:px-40">
+<div class="layout-content-container flex flex-col max-w-5xl flex-1 px-4">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-border-light dark:border-border-dark px-4 sm:px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="text-primary size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M24 4H42V17.3333V30.6667H24V44H6V30.6667V17.3333H24V4Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-text-light dark:text-text-dark text-2xl font-bold leading-tight tracking-[-0.015em]">Screwy Louie</h2>
+</div>
+<div class="flex items-center gap-4">
+<p class="hidden sm:block text-base font-medium">PlayerOne</p>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 border-2 border-primary/50" data-alt="User avatar image" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCVHs4VrVsn34Jyc2RnuO-nKbmOU0_McJDLkF0_7eaRQutN5tjxJY-L8baOI6AEAHAacizDMNfCXFKWHh9b28MuDDGZ7AkYQmypBS4fblzZuI_nYYuUhberupTnA_9fVUDHwIw130nSTYZ0zvXXhf2yoZS-fYQt4yX_Z-_iNIxzCIbBuICiTQ04dtzlWUQoHV1Yl6WfZ3voE2FcGpthCg6d9P4xOWV3CMAF44veH6LO72reTgC2EQaWDtBmg4NbuGkg-whcN7j0fWdy");'></div>
+</div>
+</header>
+<main class="flex-1 mt-8">
+<div class="flex flex-wrap items-center justify-between gap-4 p-4">
+<h1 class="text-text-light dark:text-text-dark text-5xl font-black leading-tight tracking-[-0.033em] min-w-72">Game Lobby</h1>
+</div>
+<div class="flex justify-stretch">
+<div class="flex flex-1 gap-4 flex-wrap p-4 justify-start">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-8 bg-primary text-white text-lg font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined mr-2">add_circle</span>
+<span class="truncate">Create Room</span>
+</button>
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-8 bg-black/5 dark:bg-white/5 text-text-light dark:text-text-dark text-lg font-bold leading-normal tracking-[0.015em] hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined mr-2">pin</span>
+<span class="truncate">Join by ID</span>
+</button>
+</div>
+</div>
+<h2 class="text-text-light dark:text-text-dark text-3xl font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-8">Active Games</h2>
+<div class="grid grid-cols-1 @2xl:grid-cols-2 @5xl:grid-cols-3 gap-6 p-4">
+<!-- Card 1: Lobby -->
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.2)] bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6">
+<div class="flex w-full flex-col items-stretch justify-center gap-4">
+<div class="flex items-start justify-between">
+<p class="text-text-light dark:text-text-dark text-2xl font-bold leading-tight tracking-[-0.015em]">Room #1234</p>
+<span class="inline-flex items-center rounded-full bg-status-lobby/10 px-3 py-1 text-sm font-semibold text-status-lobby">Lobby</span>
+</div>
+<div class="flex items-center gap-6 text-subtle-light dark:text-subtle-dark text-base pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">group</span>
+<span>3/4 Players</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">visibility</span>
+<span>1 Spectator</span>
+</div>
+</div>
+<div class="pt-4">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Join Game</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2: In Progress -->
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.2)] bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6">
+<div class="flex w-full flex-col items-stretch justify-center gap-4">
+<div class="flex items-start justify-between">
+<p class="text-text-light dark:text-text-dark text-2xl font-bold leading-tight tracking-[-0.015em]">Room #5678</p>
+<span class="inline-flex items-center rounded-full bg-status-progress/10 px-3 py-1 text-sm font-semibold text-status-progress">Hand 3/10</span>
+</div>
+<div class="flex items-center gap-6 text-subtle-light dark:text-subtle-dark text-base pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">group</span>
+<span>4/4 Players</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">visibility</span>
+<span>2 Spectators</span>
+</div>
+</div>
+<div class="pt-4">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-black/5 dark:bg-white/5 text-text-light dark:text-text-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+<span class="truncate">Watch</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3: Full Lobby -->
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.2)] bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6">
+<div class="flex w-full flex-col items-stretch justify-center gap-4">
+<div class="flex items-start justify-between">
+<p class="text-text-light dark:text-text-dark text-2xl font-bold leading-tight tracking-[-0.015em]">Room #9101</p>
+<span class="inline-flex items-center rounded-full bg-status-lobby/10 px-3 py-1 text-sm font-semibold text-status-lobby">Lobby</span>
+</div>
+<div class="flex items-center gap-6 text-subtle-light dark:text-subtle-dark text-base pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">group</span>
+<span>4/4 Players</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">visibility</span>
+<span>0 Spectators</span>
+</div>
+</div>
+<div class="pt-4">
+<button class="flex w-full cursor-not-allowed items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-black/10 dark:bg-white/10 text-subtle-light dark:text-subtle-dark text-base font-bold leading-normal tracking-[0.015em]" disabled="">
+<span class="truncate">Join (Full)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 4: Complete -->
+<div class="flex flex-col items-stretch justify-start rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_12px_rgba(0,0,0,0.2)] bg-card-light dark:bg-card-dark border border-border-light dark:border-border-dark p-6">
+<div class="flex w-full flex-col items-stretch justify-center gap-4">
+<div class="flex items-start justify-between">
+<p class="text-text-light dark:text-text-dark text-2xl font-bold leading-tight tracking-[-0.015em]">Room #1121</p>
+<span class="inline-flex items-center rounded-full bg-status-complete/20 px-3 py-1 text-sm font-semibold text-status-complete">Complete</span>
+</div>
+<div class="flex items-center gap-6 text-subtle-light dark:text-subtle-dark text-base pt-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">group</span>
+<span>4/4 Players</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-xl">visibility</span>
+<span>5 Spectators</span>
+</div>
+</div>
+<div class="pt-4">
+<button class="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-black/5 dark:bg-white/5 text-text-light dark:text-text-dark text-base font-bold leading-normal tracking-[0.015em] hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+<span class="truncate">View Results</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty State -->
+<div class="mt-12 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border-light dark:border-border-dark bg-card-light/50 dark:bg-card-dark/50 p-12 text-center">
+<span class="material-symbols-outlined text-6xl text-subtle-light dark:text-subtle-dark">sentiment_dissatisfied</span>
+<p class="mt-4 text-2xl font-bold text-text-light dark:text-text-dark">No other games right now.</p>
+<p class="mt-2 text-base text-subtle-light dark:text-subtle-dark">Why not create a new one and invite some friends?</p>
+<button class="mt-6 flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-14 px-8 bg-primary text-white text-lg font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined mr-2">add_circle</span>
+<span class="truncate">Create New Room</span>
+</button>
+</div>
+</main>
+</div>
+</div>
+</div>
+</div>
+</body></html>

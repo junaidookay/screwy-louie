@@ -1,0 +1,52 @@
+Screwy Louie Rules
+Overview
+Goal: Have the lowest number of points at the end of the game.
+Players: 2–8
+Cards: 52-Deck Face cards (2 decks)
+104 cards total
+Rules
+Groups are defined as 3 or more cards of the same kind (for example, 3 3’s, 3 Jacks, 3 Kings, 3 8’s, etc.)
+Runs are defined as 4 or more cards of the same suit in order starting at 3 and ending at Ace
+Jokers are wild
+A 2 of any suit is wild
+If the draw pile runs out, reshuffle the discard pile to create a new one.
+The player whose turn it is can give the face-up card from the discard pile to any player (Player X), but that Player X will also be given an extra card from the draw pile. The player whose turn it is then has to take one card from the draw pile to start their turn.
+
+Completion Rules
+A player can complete only the designated Groups or Runs per hand.
+Once a phase is laid down, the player must “go out” (discard all cards).
+
+Scoring
+At the end of a hand (when someone gets rid of all their cards), players add up points from the cards that they are still holding in their hand (cards they have laid down do not count):
+Cards: 3–9 are 5 points each
+Cards: 10, Jack, Queen, King are 10 points each
+Ace cards are 15 points each
+2 cards are 20 points each 
+Joker cards are 50 points each
+The lowest total score at the end wins.
+
+
+
+Setup
+Shuffle the deck.
+Deal 7 cards to each player.
+Place the rest face-down as the draw pile.
+Flip the top card face-up to start the discard pile.
+The player to the dealer’s left goes first
+Play continues clockwise until a player has laid down or discarded all of their cards.
+Gameplay 
+1st Turn: 2 Groups - Deal 7 cards
+The player whose turn it is (Player 1) can give the card from the discard pile to any player (Player X), but that Player X will also be given an extra card from the draw pile.
+The player can draw one card from the draw pile or discard pile.
+Optionally lay down your 2 groups if they are both complete.
+Optionally hit (add) cards onto completed phases (your own or others) only if you have laid down your 2 groups.
+Discard one card to the discard pile to end your turn.
+Play continues to the next player.
+If the draw pile runs out, reshuffle the discard pile to create a new one.
+
+2nd Turn: 1 Group, 1 Run - Deal 8 cards
+3rd Turn: 2 Runs - Deal 9 cards
+4th Turn: 3 Groups - Deal 10 cards
+5th Turn: 2 Groups, 1 Run - Deal 11 cards
+6th Turn: 1 Group, 2 Runs - Deal 12 cards
+**On this last turn there is only 1 player who will put their cards down. There is a special rule here that I can explain later.
