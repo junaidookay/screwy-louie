@@ -111,6 +111,18 @@ function setBackgroundCard(el: HTMLElement, c: Card): void {
   tryNext();
 }
 
+function spinCard(el: HTMLElement): void {
+  const prev = el.style.backgroundImage || "";
+  const restore = () => { el.style.backgroundImage = prev; el.classList.remove("card-spin"); };
+  el.classList.add("card-spin");
+  const back = cardBackPath();
+  el.style.backgroundImage = `url('${back}')`;
+  el.style.backgroundSize = "contain";
+  el.style.backgroundRepeat = "no-repeat";
+  el.style.backgroundPosition = "center";
+  setTimeout(restore, 600);
+}
+
 function initPlayers(count: number, deck: Deck, handNumber: number): Player[] {
   const players: Player[] = [];
   const deal = getDealCountForHand(handNumber);
@@ -157,6 +169,7 @@ let state: State = createState();
 const elPlayers = document.getElementById("players") as HTMLElement;
 const elDrawSize = document.getElementById("draw-size") as HTMLElement;
 const elDiscardTop = document.getElementById("discard-top") as HTMLElement;
+const elDrawBack = document.getElementById("draw-back") as HTMLElement;
 const elBtnDraw = document.getElementById("btn-draw") as HTMLButtonElement;
 const elBtnDrawDiscard = document.getElementById("btn-draw-discard") as HTMLButtonElement;
 const elBtnDiscard = document.getElementById("btn-discard") as HTMLButtonElement;
@@ -218,9 +231,8 @@ const elPageSettings = document.getElementById("page-settings") as HTMLElement;
 const elPageHelp = document.getElementById("page-help") as HTMLElement;
 const elPageGame = document.getElementById("page-game") as HTMLElement;
 const elHandGrid = document.getElementById("hand-grid") as HTMLElement;
-const elTimerHours = document.getElementById("timer-hours") as HTMLElement;
-const elTimerMinutes = document.getElementById("timer-minutes") as HTMLElement;
-const elTimerSeconds = document.getElementById("timer-seconds") as HTMLElement;
+const elTableArea = document.getElementById("table-area") as HTMLElement;
+// timers removed from UI
 const elBtnToggleChat = document.getElementById("btn-toggle-chat") as HTMLButtonElement;
 const elBtnCloseChat = document.getElementById("btn-close-chat") as HTMLButtonElement;
 const elChatPanel = document.getElementById("chat-panel") as HTMLElement;
@@ -239,14 +251,28 @@ const elLobbyRoomId = document.getElementById("lobby-room-id") as HTMLElement;
 const elBtnCopyRoom = document.getElementById("btn-copy-room") as HTMLButtonElement;
 const elSlot1Status = document.getElementById("slot1-status") as HTMLElement;
 const elSlot2Status = document.getElementById("slot2-status") as HTMLElement;
+const elSlot3Status = document.getElementById("slot3-status") as HTMLElement;
+const elSlot4Status = document.getElementById("slot4-status") as HTMLElement;
+const elSlot1You = document.getElementById("slot1-you") as HTMLElement;
+const elSlot2You = document.getElementById("slot2-you") as HTMLElement;
+const elSlot3You = document.getElementById("slot3-you") as HTMLElement;
+const elSlot4You = document.getElementById("slot4-you") as HTMLElement;
 const elBtnSlot1Take = document.getElementById("btn-slot1-take") as HTMLButtonElement;
 const elBtnSlot1Leave = document.getElementById("btn-slot1-leave") as HTMLButtonElement;
 const elBtnSlot2Take = document.getElementById("btn-slot2-take") as HTMLButtonElement;
 const elBtnSlot2Leave = document.getElementById("btn-slot2-leave") as HTMLButtonElement;
+const elBtnSlot3Take = document.getElementById("btn-slot3-take") as HTMLButtonElement;
+const elBtnSlot3Leave = document.getElementById("btn-slot3-leave") as HTMLButtonElement;
+const elBtnSlot4Take = document.getElementById("btn-slot4-take") as HTMLButtonElement;
+const elBtnSlot4Leave = document.getElementById("btn-slot4-leave") as HTMLButtonElement;
 const elSlot1Ready = document.getElementById("slot1-ready") as HTMLElement;
 const elSlot2Ready = document.getElementById("slot2-ready") as HTMLElement;
+const elSlot3Ready = document.getElementById("slot3-ready") as HTMLElement;
+const elSlot4Ready = document.getElementById("slot4-ready") as HTMLElement;
 const elBtnSlot1Ready = document.getElementById("btn-slot1-ready") as HTMLButtonElement;
 const elBtnSlot2Ready = document.getElementById("btn-slot2-ready") as HTMLButtonElement;
+const elBtnSlot3Ready = document.getElementById("btn-slot3-ready") as HTMLButtonElement;
+const elBtnSlot4Ready = document.getElementById("btn-slot4-ready") as HTMLButtonElement;
 const elBtnLobbyStart = document.getElementById("btn-lobby-start") as HTMLButtonElement;
 const elLobbyStatus = document.getElementById("lobby-status") as HTMLElement;
 const elLobbyReadyChip = document.getElementById("lobby-ready-chip") as HTMLElement;
@@ -290,6 +316,61 @@ function showToast(text: string): void {
   toastEl.style.display = "block";
   if (toastTimer) clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { if (toastEl) toastEl.style.display = "none"; }, 2500);
+}
+
+let hoverPreviewEl: HTMLElement | null = null;
+function ensureHoverPreview(): HTMLElement {
+  if (!hoverPreviewEl) {
+    const el = document.createElement("div");
+    el.id = "hover-preview";
+    el.style.position = "fixed";
+    el.style.width = "96px";
+    el.style.aspectRatio = "3 / 4" as any;
+    el.style.backgroundSize = "contain";
+    el.style.backgroundRepeat = "no-repeat";
+    el.style.backgroundPosition = "center";
+    el.style.borderRadius = "10px";
+    el.style.boxShadow = "0 10px 24px rgba(0,0,0,0.30)";
+    el.style.zIndex = "9999";
+    el.style.pointerEvents = "none";
+    el.style.opacity = "0";
+    el.style.transition = "opacity 120ms ease, transform 120ms ease";
+    document.body.appendChild(el);
+    hoverPreviewEl = el;
+  }
+  return hoverPreviewEl;
+}
+
+function positionHoverPreview(x: number, y: number): void {
+  const el = ensureHoverPreview();
+  const pad = 16;
+  const w = 96;
+  const h = 128;
+  const maxX = window.innerWidth - w - pad;
+  const maxY = window.innerHeight - h - pad;
+  const left = Math.max(pad, Math.min(x + 12, maxX));
+  const top = Math.max(pad, Math.min(y + 12, maxY));
+  el.style.left = `${left}px`;
+  el.style.top = `${top}px`;
+}
+
+function showHoverPreview(c: Card, x: number, y: number): void {
+  const el = ensureHoverPreview();
+  setBackgroundCard(el, c);
+  positionHoverPreview(x, y);
+  el.style.opacity = "1";
+  el.style.display = "block";
+}
+
+function moveHoverPreview(x: number, y: number): void {
+  const el = ensureHoverPreview();
+  positionHoverPreview(x, y);
+}
+
+function hideHoverPreview(): void {
+  if (!hoverPreviewEl) return;
+  hoverPreviewEl.style.opacity = "0";
+  setTimeout(() => { if (hoverPreviewEl) hoverPreviewEl.style.display = "none"; }, 140);
 }
 
 let lobbyTimerHandle: any = null;
@@ -342,8 +423,27 @@ function render(): void {
   elPageHelp.classList.toggle("hidden", state.stage !== "help");
   elHeader.style.display = "none";
   elPageGame.classList.toggle("hidden", state.stage !== "game");
-  elMain.classList.add("hidden");
+  elPlayers.classList.toggle("hidden", state.stage !== "game");
+  if (elMain) elMain.classList.add("hidden");
   elDrawSize.textContent = `${state.drawPile.size()} cards`;
+  if (elDrawBack) {
+    elDrawBack.innerHTML = "";
+    elDrawBack.style.position = "relative";
+    const layers = Math.min(4, Math.max(1, Math.ceil(state.drawPile.size() / 20)));
+    for (let i = layers - 1; i > 0; i--) {
+      const layer = document.createElement("div");
+      layer.className = "absolute inset-0 rounded-lg shadow-sm bg-center bg-no-repeat bg-contain border border-gray-200 dark:border-gray-700";
+      layer.style.transform = `translate(${i * 2}px, ${i * 2}px)`;
+      layer.style.backgroundImage = `url('${cardBackPath()}')`;
+      elDrawBack.appendChild(layer);
+    }
+    elDrawBack.style.backgroundImage = `url('${cardBackPath()}')`;
+    elDrawBack.style.backgroundSize = "contain";
+    elDrawBack.style.backgroundRepeat = "no-repeat";
+    elDrawBack.style.backgroundPosition = "center";
+    elDrawBack.title = `${state.drawPile.size()} cards`;
+    elDrawBack.onclick = () => { if (!elBtnDraw.disabled) elBtnDraw.click(); };
+  }
   const top = state.discardPile[state.discardPile.length - 1];
   const discEl = elDiscardTop as HTMLElement;
   const nextKey = top ? `${String(top.rank)}-${String(top.suit || "")}` : "empty";
@@ -361,43 +461,26 @@ function render(): void {
   elPlayers.innerHTML = "";
   for (const p of state.players) {
     const container = document.createElement("div");
-    container.className = "player";
+    container.className = "player flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 shadow-sm";
     const title = document.createElement("div");
-    title.className = "row";
+    title.className = "flex items-center gap-2";
     const left = document.createElement("div");
-    const laidInfo = ` | Laid: G${p.laidGroups.length} R${p.laidRuns.length} | Total ${p.totalScore}`;
+    const laidInfo = `G${p.laidGroups.length} R${p.laidRuns.length} • Total ${p.totalScore}`;
     const sid = state.netMode && p.serverId ? ` (${p.serverId.slice(0, 6)})` : "";
-    left.textContent = `${p.name}${sid}${state.current === p.id ? " • Turn" : ""}${laidInfo}`;
-    const right = document.createElement("div");
-    right.textContent = `Points in hand: ${scoreHand(p.hand)}`;
+    const nameSpan = document.createElement("span"); nameSpan.className = "font-semibold"; nameSpan.textContent = `${p.name}${sid}`;
+    left.appendChild(nameSpan);
+    if (state.current === p.id) {
+      const badge = document.createElement("span");
+      badge.textContent = "Turn";
+      badge.className = "ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 bg-primary text-white text-xs font-bold";
+      left.appendChild(badge);
+    }
+    const infoSpan = document.createElement("span"); infoSpan.className = "text-xs text-gray-600 dark:text-gray-300"; infoSpan.textContent = laidInfo; left.appendChild(infoSpan);
+    const right = document.createElement("div"); right.className = "text-sm";
+    right.textContent = `Cards: ${p.hand.length}`;
     title.appendChild(left);
-    title.appendChild(right);
-    const handEl = document.createElement("div");
-    handEl.className = "hand";
-    p.hand.forEach((c, idx) => {
-      const cardEl = document.createElement("div");
-      const isSel = state.current === p.id && state.selectedIndices.includes(idx);
-      cardEl.className = "card" + (isSel ? " selected" : "");
-      const img = document.createElement("img");
-      img.alt = formatCard(c);
-      img.style.width = "100%";
-      img.style.height = "100%";
-      img.style.objectFit = "contain";
-      loadImageWithFallback(img, c, () => {
-        cardEl.textContent = formatCard(c);
-        img.remove();
-      });
-      cardEl.onclick = () => {
-        if (state.current !== p.id) return;
-        const pos = state.selectedIndices.indexOf(idx);
-        if (pos >= 0) state.selectedIndices.splice(pos, 1); else state.selectedIndices.push(idx);
-        render();
-      };
-      cardEl.appendChild(img);
-      handEl.appendChild(cardEl);
-    });
     container.appendChild(title);
-    container.appendChild(handEl);
+    container.appendChild(right);
     elPlayers.appendChild(container);
   }
   if (state.netMode && state.matchComplete && Array.isArray(state.lastScores) && (state as any).scorePopShownHand !== state.handNumber) {
@@ -419,20 +502,23 @@ function render(): void {
   const myIdx = !isSpectator && myId ? state.players.findIndex(pp => pp.serverId === myId) : -1;
   const my = myIdx >= 0 ? state.players[myIdx] : state.players[state.current];
   const myTurn = myIdx >= 0 && state.current === myIdx;
-  elBtnDraw.disabled = isSpectator || !myTurn || my.hasDrawn;
-  elBtnDrawDiscard.disabled = isSpectator || !myTurn || my.hasDrawn || state.discardPile.length === 0;
-  elBtnDiscard.disabled = isSpectator || !myTurn || !my.hasDrawn || state.selectedIndices.length !== 1;
-  elBtnEnd.disabled = isSpectator || !myTurn || !my.hasDrawn || !my.didDiscard;
+  if (elBtnDraw) elBtnDraw.disabled = isSpectator || !myTurn || my.hasDrawn;
+  if (elBtnDrawDiscard) elBtnDrawDiscard.disabled = isSpectator || !myTurn || my.hasDrawn || state.discardPile.length === 0;
+  if (elBtnDiscard) elBtnDiscard.disabled = false;
+  if (elBtnEnd) elBtnEnd.disabled = false;
   const curName = state.players[state.current]?.name || "Player";
-  elStatus.textContent = `Hand ${state.handNumber} — Deal ${getDealCountForHand(state.handNumber)} • Turn: ${curName}`;
-  elSelTarget.innerHTML = "";
-  state.players.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = state.netMode ? String(p.serverId) : String(p.id);
-    opt.textContent = p.name;
-    elSelTarget.appendChild(opt);
-  });
-  elBtnGive.disabled = isSpectator || state.discardPile.length === 0;
+  const reqParts = getPhaseRequirementsForHand(state.handNumber).map(r => r.type === "group" ? `${r.count} Group${r.count>1?"s":""}` : `${r.count} Run${r.count>1?"s":""}`);
+  elStatus.textContent = `Round ${state.handNumber}: ${reqParts.join(" + ")} • Turn: ${curName}`;
+  if (elSelTarget) {
+    elSelTarget.innerHTML = "";
+    state.players.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = state.netMode ? String(p.serverId) : String(p.id);
+      opt.textContent = p.name;
+      elSelTarget.appendChild(opt);
+    });
+  }
+  if (elBtnGive) elBtnGive.disabled = isSpectator || state.discardPile.length === 0;
   elHitPlayer.innerHTML = "";
   state.players.forEach(p => {
     const opt = document.createElement("option");
@@ -462,7 +548,7 @@ function render(): void {
       elHitIndex.appendChild(opt);
     }
   }
-  elBtnHit.disabled = isSpectator || state.selectedIndices.length === 0 || !state.players[state.current].laidComplete;
+  elBtnHit.disabled = false;
   elScoreboard.style.display = state.matchComplete || state.netMode && state.lastScores.length > 0 ? "block" : "none";
   if (state.netMode && state.lastScores.length > 0) {
     elScores.innerHTML = state.lastScores.map(s => {
@@ -473,38 +559,15 @@ function render(): void {
   }
   if (state.netMode) {
     const s = state.net as NetClient;
-    let timerText = "";
-    if (state.turnDeadline) {
-      const sec = Math.max(0, Math.ceil((state.turnDeadline - Date.now()) / 1000));
-      timerText = ` • Turn: ${sec}s`;
-    }
-    if ((state as any).matchDeadline) {
-      const sec2 = Math.max(0, Math.ceil(((state as any).matchDeadline - Date.now()) / 1000));
-      const m2 = Math.floor(sec2 / 60);
-      const s2 = sec2 % 60;
-      timerText += ` • Match: ${String(m2).padStart(2, "0")}:${String(s2).padStart(2, "0")}`;
-    }
-    elMpInfo.textContent = `Room: ${s.roomId}${timerText}`;
+    elMpInfo.textContent = `Room: ${s.roomId}`;
     if ((state as any).spectators && Array.isArray((state as any).spectators)) {
       const specs = (state as any).spectators as { id: string; name: string }[];
-      elSpectators.innerHTML = specs.length ? specs.map(x => x.name).join(", ") : "None";
+      if (elSpectators) elSpectators.innerHTML = specs.length ? specs.map(x => x.name).join(", ") : "None";
     }
   }
 
   const dd = (state as any).matchDeadline || state.turnDeadline || null;
-  if (dd) {
-    const totalSec = Math.max(0, Math.ceil((dd - Date.now()) / 1000));
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    if (elTimerHours) elTimerHours.textContent = String(h).padStart(2, "0");
-    if (elTimerMinutes) elTimerMinutes.textContent = String(m).padStart(2, "0");
-    if (elTimerSeconds) elTimerSeconds.textContent = String(s).padStart(2, "0");
-  } else {
-    if (elTimerHours) elTimerHours.textContent = "00";
-    if (elTimerMinutes) elTimerMinutes.textContent = "00";
-    if (elTimerSeconds) elTimerSeconds.textContent = "00";
-  }
+  // timer digits removed
 
   if (elHandGrid) {
     elHandGrid.innerHTML = "";
@@ -520,33 +583,166 @@ function render(): void {
       const inner = document.createElement("div");
       inner.className = "w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-2 hover:ring-2 hover:ring-primary/40 transition-all" + (isSel ? " ring-4 ring-primary" : "");
       setBackgroundCard(inner, c);
-      inner.onclick = () => {
+      inner.title = formatCard(c);
+      {
+        let clickTimer: number | null = null;
+        let lastTs = 0;
+        inner.addEventListener("click", () => {
+          const now = Date.now();
+          if (now - lastTs <= 250) {
+            lastTs = 0;
+            if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+            spinCard(inner);
+            return;
+          }
+          lastTs = now;
+          clickTimer = window.setTimeout(() => {
+            if (state.current !== p.id) { clickTimer = null; return; }
+            const pos = state.selectedIndices.indexOf(idx);
+            if (pos >= 0) state.selectedIndices.splice(pos, 1); else state.selectedIndices.push(idx);
+            render();
+            clickTimer = null;
+          }, 250);
+        });
+      }
+      inner.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); });
+      inner.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); });
+      inner.addEventListener("mouseleave", () => { hideHoverPreview(); });
+      inner.draggable = state.current === p.id;
+      inner.addEventListener("dragstart", (e) => {
+        hideHoverPreview();
         if (state.current !== p.id) return;
-        const pos = state.selectedIndices.indexOf(idx);
-        if (pos >= 0) state.selectedIndices.splice(pos, 1); else state.selectedIndices.push(idx);
+        try { e.dataTransfer?.setData("text/plain", String(idx)); } catch {}
+        try { e.dataTransfer && (e.dataTransfer.effectAllowed = "move"); } catch {}
+      });
+      inner.addEventListener("dragover", (e) => { e.preventDefault(); });
+      inner.addEventListener("drop", (e) => {
+        e.preventDefault();
+        if (state.current !== p.id) return;
+        const fromRaw = e.dataTransfer?.getData("text/plain") || "";
+        const fromIdx = Number(fromRaw);
+        if (!Number.isFinite(fromIdx)) return;
+        if (fromIdx === idx) return;
+        const curHand = p.hand.slice();
+        const [moved] = curHand.splice(fromIdx, 1);
+        if (!moved) return;
+        curHand.splice(idx, 0, moved);
+        p.hand = curHand;
         render();
-      };
+      });
       outer.appendChild(inner);
       elHandGrid.appendChild(outer);
     });
+  }
+
+  if (elTableArea) {
+    elTableArea.innerHTML = "";
+    const list = document.createElement("div");
+    list.className = "w-full flex flex-col gap-4";
+    let shown = false;
+    state.players.forEach((p) => {
+      const has = p.laidGroups.length > 0 || p.laidRuns.length > 0;
+      if (!has) return;
+      shown = true;
+      const sec = document.createElement("div");
+      sec.className = "w-full";
+      const title = document.createElement("div"); title.className = "text-sm font-semibold mb-1"; title.textContent = `${p.name}'s Table`;
+      sec.appendChild(title);
+      const grid = document.createElement("div"); grid.className = "flex flex-col gap-2";
+      p.laidGroups.forEach((g, gi) => {
+        const row = document.createElement("div"); row.className = "flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-2 py-1 slide-in-row";
+        const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300"; label.textContent = `Group ${gi + 1}`; row.appendChild(label);
+        const cardsWrap = document.createElement("div"); cardsWrap.className = "flex items-center gap-2";
+        g.forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-12 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
+        row.appendChild(cardsWrap);
+        // drag-to-hit
+        row.addEventListener("dragover", (e) => { e.preventDefault(); });
+        row.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const cur = state.players[state.current];
+          if (!cur.laidComplete) { showToast("Lay down first"); return; }
+          const raw = e.dataTransfer?.getData("text/plain") || "";
+          const idx = Number(raw);
+          const addIdxs = state.selectedIndices.length ? state.selectedIndices.slice() : (Number.isFinite(idx) ? [idx] : []);
+          if (!addIdxs.length) return;
+          if (state.netMode && state.net && p.serverId) {
+            state.net.hit(String(p.serverId), "group", gi, addIdxs);
+            state.selectedIndices = [];
+            return;
+          }
+          const base = p.laidGroups[gi];
+          const add = addIdxs.map(i => cur.hand[i]);
+          const next = base.concat(add);
+          if (!isValidGroup(next)) { showToast("Not a sufficient group"); return; }
+          p.laidGroups[gi] = next;
+          const keep: Card[] = [];
+          cur.hand.forEach((c, i) => { if (!addIdxs.includes(i)) keep.push(c); });
+          cur.hand = keep;
+          state.selectedIndices = [];
+          render();
+        });
+        grid.appendChild(row);
+      });
+      p.laidRuns.forEach((r, ri) => {
+        const row = document.createElement("div"); row.className = "flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-2 py-1 slide-in-row";
+        const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300"; label.textContent = `Run ${ri + 1}`; row.appendChild(label);
+        const cardsWrap = document.createElement("div"); cardsWrap.className = "flex items-center gap-2";
+        r.forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-12 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
+        row.appendChild(cardsWrap);
+        row.addEventListener("dragover", (e) => { e.preventDefault(); });
+        row.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const cur = state.players[state.current];
+          if (!cur.laidComplete) { showToast("Lay down first"); return; }
+          const raw = e.dataTransfer?.getData("text/plain") || "";
+          const idx = Number(raw);
+          const addIdxs = state.selectedIndices.length ? state.selectedIndices.slice() : (Number.isFinite(idx) ? [idx] : []);
+          if (!addIdxs.length) return;
+          if (state.netMode && state.net && p.serverId) {
+            state.net.hit(String(p.serverId), "run", ri, addIdxs);
+            state.selectedIndices = [];
+            return;
+          }
+          const base = p.laidRuns[ri];
+          const add = addIdxs.map(i => cur.hand[i]);
+          const next = base.concat(add);
+          if (!isValidRun(next)) { showToast("Not a sufficient run"); return; }
+          p.laidRuns[ri] = next;
+          const keep: Card[] = [];
+          cur.hand.forEach((c, i) => { if (!addIdxs.includes(i)) keep.push(c); });
+          cur.hand = keep;
+          state.selectedIndices = [];
+          render();
+        });
+        grid.appendChild(row);
+      });
+      sec.appendChild(grid);
+      list.appendChild(sec);
+    });
+    if (!shown) {
+      const empty = document.createElement("p"); empty.className = "text-gray-400 dark:text-gray-500"; empty.textContent = "Main Play Area"; elTableArea.appendChild(empty);
+    } else {
+      elTableArea.appendChild(list);
+    }
   }
 
   const myIdSel = (state.net as NetClient)?.playerId || null;
   const isSpectatorSel = state.netMode && !myIdSel;
   const myIdxSel = !isSpectatorSel && myIdSel ? state.players.findIndex(pp => pp.serverId === myIdSel) : -1;
   const myTurnSel = myIdxSel >= 0 && state.current === myIdxSel;
+  const myHasDrawnSel = myTurnSel ? state.players[myIdxSel].hasDrawn : false;
   const curSel = myTurnSel ? state.selectedIndices.map(i => state.players[myIdxSel].hand[i]) : [];
-  const canGroup = curSel.length >= 3 && isValidGroup(curSel);
-  const canRun = curSel.length >= 4 && isValidRun(curSel);
+  const canGroup = myHasDrawnSel && curSel.length >= 3 && isValidGroup(curSel);
+  const canRun = myHasDrawnSel && curSel.length >= 4 && isValidRun(curSel);
   if (elBtnLayGroup) {
-    elBtnLayGroup.disabled = !canGroup;
+    elBtnLayGroup.disabled = false;
     elBtnLayGroup.classList.toggle("bg-primary", canGroup);
     elBtnLayGroup.classList.toggle("text-white", canGroup);
     elBtnLayGroup.classList.toggle("bg-white", !canGroup);
     elBtnLayGroup.classList.toggle("text-gray-800", !canGroup);
   }
   if (elBtnLayRun) {
-    elBtnLayRun.disabled = !canRun;
+    elBtnLayRun.disabled = false;
     elBtnLayRun.classList.toggle("bg-primary", canRun);
     elBtnLayRun.classList.toggle("text-white", canRun);
     elBtnLayRun.classList.toggle("bg-white", !canRun);
@@ -631,6 +827,11 @@ function reshuffleIfNeeded(): void {
     newDeck.shuffle();
     state.drawPile = newDeck;
     state.discardPile = [top];
+    if (elDrawBack) {
+      elDrawBack.classList.add("shuffle-ripple");
+      setTimeout(() => { elDrawBack.classList.remove("shuffle-ripple"); }, 700);
+    }
+    showToast("Deck reshuffled");
   }
 }
 
@@ -673,7 +874,7 @@ elBtnDrawDiscard.onclick = () => {
 elBtnDiscard.onclick = () => {
   const cur = state.players[state.current];
   if (!cur.hasDrawn) return;
-  if (state.selectedIndices.length !== 1) return;
+  if (state.selectedIndices.length !== 1) { showToast("Select exactly one card to discard"); return; }
   const selIdx = state.selectedIndices[0];
   const cand = cardImageCandidates(cur.hand[selIdx]);
   const cardImg = cand[0] || "";
@@ -695,7 +896,8 @@ elBtnDiscard.onclick = () => {
 
 elBtnEnd.onclick = () => {
   const cur = state.players[state.current];
-  if (!cur.hasDrawn || !cur.didDiscard) return;
+  if (!cur.hasDrawn) { showToast("Draw first"); return; }
+  if (!cur.didDiscard) { showToast("Discard first"); return; }
   if (state.netMode && state.net) {
     state.net.endTurn();
     return;
@@ -705,16 +907,16 @@ elBtnEnd.onclick = () => {
   pulse(elBtnLayGroup);
 };
 
-elBtnGive.onclick = () => {
+if (elBtnGive) elBtnGive.onclick = () => {
   if (state.discardPile.length === 0) return;
   const cur = state.players[state.current];
   if (state.netMode && state.net) {
-    const targetServerId = String(elSelTarget.value);
+    const targetServerId = elSelTarget ? String(elSelTarget.value) : "";
     if (!targetServerId || (cur.serverId && targetServerId === cur.serverId)) return;
     state.net.giveDiscardTo(targetServerId);
     return;
   }
-  const targetId = Number(elSelTarget.value);
+  const targetId = elSelTarget ? Number(elSelTarget.value) : NaN;
   const target = state.players.find(p => p.id === targetId);
   if (!target || target.id === cur.id) return;
   const top = state.discardPile.pop() as Card;
@@ -732,14 +934,15 @@ elBtnGive.onclick = () => {
 
 elBtnLayGroup.onclick = () => {
   const cur = state.players[state.current];
-  if (state.selectedIndices.length < 3) return;
+  if (!cur.hasDrawn) { showToast("Draw first"); return; }
+  if (state.selectedIndices.length < 3) { showToast("Pick at least 3 cards for a group"); return; }
   const cards = state.selectedIndices.map(i => cur.hand[i]);
   if (state.netMode && state.net) {
-    state.net.layGroup(state.selectedIndices.slice());
+    state.net.layGroup(state.selectedIndices.slice(), (ok, err) => { if (!ok) showToast(err === "count" ? "Pick at least 3 cards" : err === "need_draw" ? "Draw first" : "Not a sufficient group"); });
     state.selectedIndices = [];
     return;
   }
-  if (!isValidGroup(cards)) return;
+  if (!isValidGroup(cards)) { showToast("Not a sufficient group"); return; }
   cur.laidGroups.push(cards);
   const keep: Card[] = [];
   cur.hand.forEach((c, i) => { if (!state.selectedIndices.includes(i)) keep.push(c); });
@@ -755,14 +958,15 @@ elBtnLayGroup.onclick = () => {
 
 elBtnLayRun.onclick = () => {
   const cur = state.players[state.current];
-  if (state.selectedIndices.length < 4) return;
+  if (!cur.hasDrawn) { showToast("Draw first"); return; }
+  if (state.selectedIndices.length < 4) { showToast("Pick at least 4 cards for a run"); return; }
   const cards = state.selectedIndices.map(i => cur.hand[i]);
   if (state.netMode && state.net) {
-    state.net.layRun(state.selectedIndices.slice());
+    state.net.layRun(state.selectedIndices.slice(), (ok, err) => { if (!ok) showToast(err === "count" ? "Pick at least 4 cards" : err === "need_draw" ? "Draw first" : "Not a sufficient run"); });
     state.selectedIndices = [];
     return;
   }
-  if (!isValidRun(cards)) return;
+  if (!isValidRun(cards)) { showToast("Not a sufficient run"); return; }
   cur.laidRuns.push(cards);
   const keep: Card[] = [];
   cur.hand.forEach((c, i) => { if (!state.selectedIndices.includes(i)) keep.push(c); });
@@ -794,7 +998,8 @@ function endHand(): void {
 
 elBtnHit.onclick = () => {
   const cur = state.players[state.current];
-  if (!cur.laidComplete) return;
+  if (state.selectedIndices.length === 0) { showToast("Select cards to hit"); return; }
+  if (!cur.laidComplete) { showToast("Lay down first"); return; }
   if (state.netMode && state.net) {
     const tServerId = String(elHitPlayer.value);
     const idx = Number(elHitIndex.value);
@@ -809,17 +1014,17 @@ elBtnHit.onclick = () => {
   const idx = Number(elHitIndex.value);
   if (elHitType.value === "group") {
     const base = target.laidGroups[idx];
-    if (!base) return;
+    if (!base) { showToast("Pick a valid target group"); return; }
     const add = state.selectedIndices.map(i => cur.hand[i]);
     const next = base.concat(add);
-    if (!isValidGroup(next)) return;
+    if (!isValidGroup(next)) { showToast("Not a sufficient group"); return; }
     target.laidGroups[idx] = next;
   } else {
     const base = target.laidRuns[idx];
-    if (!base) return;
+    if (!base) { showToast("Pick a valid target run"); return; }
     const add = state.selectedIndices.map(i => cur.hand[i]);
     const next = base.concat(add);
-    if (!isValidRun(next)) return;
+    if (!isValidRun(next)) { showToast("Not a sufficient run"); return; }
     target.laidRuns[idx] = next;
   }
   const keep: Card[] = [];
@@ -897,25 +1102,53 @@ function attachNet(): void {
       hand: sp.hand.slice(),
       hasDrawn: sp.hasDrawn,
       didDiscard: sp.didDiscard,
-      laidGroups: [],
-      laidRuns: [],
-      laidComplete: false,
+      laidGroups: (sp as any).laidGroups ? sp.laidGroups.map(arr => arr.slice()) : [],
+      laidRuns: (sp as any).laidRuns ? sp.laidRuns.map(arr => arr.slice()) : [],
+      laidComplete: !!((sp as any).laidComplete),
       totalScore: sp.totalScore,
     }));
     if (elLobbyRoomId) elLobbyRoomId.textContent = `Room: ${s.id}`;
     const myId = (state.net as NetClient).playerId;
     const p1 = s.players[0] || null;
     const p2 = s.players[1] || null;
+    const p3 = s.players[2] || null;
+    const p4 = s.players[3] || null;
     if (elSlot1Status) elSlot1Status.textContent = p1 ? (p1.name + (myId && p1.id === myId ? " (You)" : "")) : "Empty Slot";
     if (elSlot2Status) elSlot2Status.textContent = p2 ? (p2.name + (myId && p2.id === myId ? " (You)" : "")) : "Empty Slot";
+    if (elSlot3Status) elSlot3Status.textContent = p3 ? (p3.name + (myId && p3.id === myId ? " (You)" : "")) : "Empty Slot";
+    if (elSlot4Status) elSlot4Status.textContent = p4 ? (p4.name + (myId && p4.id === myId ? " (You)" : "")) : "Empty Slot";
+    if (elSlot1SummaryStatus) elSlot1SummaryStatus.textContent = p1 ? p1.name : "Empty";
+    if (elSlot2SummaryStatus) elSlot2SummaryStatus.textContent = p2 ? p2.name : "Empty";
+    if (elSlot3SummaryStatus) elSlot3SummaryStatus.textContent = p3 ? p3.name : "Empty";
+    if (elSlot4SummaryStatus) elSlot4SummaryStatus.textContent = p4 ? p4.name : "Empty";
+    if (elSlot1SummaryReady) elSlot1SummaryReady.textContent = p1 ? (p1.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot2SummaryReady) elSlot2SummaryReady.textContent = p2 ? (p2.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot3SummaryReady) elSlot3SummaryReady.textContent = p3 ? (p3.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot4SummaryReady) elSlot4SummaryReady.textContent = p4 ? (p4.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot1You) elSlot1You.classList.toggle("hidden", !(p1 && myId && p1.id === myId));
+    if (elSlot2You) elSlot2You.classList.toggle("hidden", !(p2 && myId && p2.id === myId));
+    if (elSlot3You) elSlot3You.classList.toggle("hidden", !(p3 && myId && p3.id === myId));
+    if (elSlot4You) elSlot4You.classList.toggle("hidden", !(p4 && myId && p4.id === myId));
+    if (elSlot1SummaryYou) elSlot1SummaryYou.classList.toggle("hidden", !(p1 && myId && p1.id === myId));
+    if (elSlot2SummaryYou) elSlot2SummaryYou.classList.toggle("hidden", !(p2 && myId && p2.id === myId));
+    if (elSlot3SummaryYou) elSlot3SummaryYou.classList.toggle("hidden", !(p3 && myId && p3.id === myId));
+    if (elSlot4SummaryYou) elSlot4SummaryYou.classList.toggle("hidden", !(p4 && myId && p4.id === myId));
     if (elBtnSlot1Take) elBtnSlot1Take.disabled = !!p1 || !!myId;
     if (elBtnSlot2Take) elBtnSlot2Take.disabled = !!p2 || !!myId;
+    if (elBtnSlot3Take) elBtnSlot3Take.disabled = !!p3 || !!myId;
+    if (elBtnSlot4Take) elBtnSlot4Take.disabled = !!p4 || !!myId;
     if (elBtnSlot1Leave) elBtnSlot1Leave.disabled = !(p1 && myId && p1.id === myId);
     if (elBtnSlot2Leave) elBtnSlot2Leave.disabled = !(p2 && myId && p2.id === myId);
+    if (elBtnSlot3Leave) elBtnSlot3Leave.disabled = !(p3 && myId && p3.id === myId);
+    if (elBtnSlot4Leave) elBtnSlot4Leave.disabled = !(p4 && myId && p4.id === myId);
     if (elSlot1Ready) elSlot1Ready.textContent = p1 ? (p1.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot2Ready) elSlot2Ready.textContent = p2 ? (p2.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot3Ready) elSlot3Ready.textContent = p3 ? (p3.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot4Ready) elSlot4Ready.textContent = p4 ? (p4.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot1Ready) (elSlot1Ready as any).dataset.ready = String(!!(p1 && p1.ready));
     if (elSlot2Ready) (elSlot2Ready as any).dataset.ready = String(!!(p2 && p2.ready));
+    if (elSlot3Ready) (elSlot3Ready as any).dataset.ready = String(!!(p3 && p3.ready));
+    if (elSlot4Ready) (elSlot4Ready as any).dataset.ready = String(!!(p4 && p4.ready));
     const myReady = myId ? (s.players.find(x => x.id === myId)?.ready || false) : false;
     if (elBtnSlot1Ready) {
       const mine1 = !!(p1 && myId && p1.id === myId);
@@ -931,15 +1164,57 @@ function attachNet(): void {
       elBtnSlot2Ready.textContent = mine2 ? (myReady ? "Unready" : "Ready") : "Ready";
       (elBtnSlot2Ready as any).dataset.ready = String(mine2 ? myReady : false);
     }
-    const bothReady = s.players.length === 2 && s.players.every(x => x.ready);
-    if (elLobbyReadyChip) {
-      const rc = s.players.filter(x => x.ready).length;
-      elLobbyReadyChip.textContent = `${rc}/2 ready`;
+    if (elBtnSlot3Ready) {
+      const mine3 = !!(p3 && myId && p3.id === myId);
+      const slot3Empty = !p3;
+      elBtnSlot3Ready.disabled = !(mine3 || slot3Empty);
+      elBtnSlot3Ready.textContent = mine3 ? (myReady ? "Unready" : "Ready") : "Ready";
+      (elBtnSlot3Ready as any).dataset.ready = String(mine3 ? myReady : false);
     }
-    if (elBtnLobbyStart) {
-      const isPlayer = !!myId && s.players.some(x => x.id === myId);
-      elBtnLobbyStart.disabled = !bothReady || s.started || !isPlayer;
+    if (elBtnSlot4Ready) {
+      const mine4 = !!(p4 && myId && p4.id === myId);
+      const slot4Empty = !p4;
+      elBtnSlot4Ready.disabled = !(mine4 || slot4Empty);
+      elBtnSlot4Ready.textContent = mine4 ? (myReady ? "Unready" : "Ready") : "Ready";
+      (elBtnSlot4Ready as any).dataset.ready = String(mine4 ? myReady : false);
     }
+    const seats: HTMLDetailsElement[] = [];
+    if (elSeat1) seats.push(elSeat1);
+    if (elSeat2) seats.push(elSeat2);
+    if (elSeat3) seats.push(elSeat3);
+    if (elSeat4) seats.push(elSeat4);
+    const attachAccordion = () => {
+      if (seats.length === 0) return;
+      const w = window.innerWidth || 0;
+      if (w <= 480) {
+        // default: open the seat the user occupies, else first
+        const myIdx = myId ? s.players.findIndex(x => x.id === myId) : -1;
+        seats.forEach((d, i) => { d.open = i === (myIdx >= 0 ? myIdx : 0); });
+      }
+    };
+    const onToggle = (e: Event) => {
+      const w = window.innerWidth || 0;
+      if (w > 480) return;
+      const tgt = e.currentTarget as HTMLDetailsElement;
+      if (!tgt.open) return;
+      seats.forEach(d => { if (d !== tgt) d.open = false; });
+    };
+    seats.forEach(d => {
+      const key = (d as any).dataset?.acc || "false";
+      if (key !== "true") { d.addEventListener("toggle", onToggle); (d as any).dataset.acc = "true"; }
+    });
+    attachAccordion();
+    const allReady = s.players.length >= 2 && s.players.every(x => x.ready);
+  if (elLobbyReadyChip) {
+    const rc = s.players.filter(x => x.ready).length;
+    elLobbyReadyChip.textContent = `${rc}/4 ready`;
+  }
+  if (elBtnLobbyStart) {
+    const isPlayer = !!myId && s.players.some(x => x.id === myId);
+    elBtnLobbyStart.disabled = (s.players.length < 2) || s.started || !isPlayer;
+  }
+  if (elLobbyTimer) elLobbyTimer.classList.add("hidden");
+  if (elBtnLobbyExtend) elBtnLobbyExtend.classList.add("hidden");
     if (elLobbyStatus) {
       const myIdx = myId ? s.players.findIndex(x => x.id === myId) : -1;
       if (myIdx >= 0) {
@@ -1053,35 +1328,9 @@ function attachNet(): void {
 }
 
 function updateTimers(): void {
-  if (!state.netMode) return;
-  const dd = (state as any).matchDeadline || state.turnDeadline || null;
-  if (dd) {
-    const totalSec = Math.max(0, Math.ceil((dd - Date.now()) / 1000));
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
-    if (elTimerHours) elTimerHours.textContent = String(h).padStart(2, "0");
-    if (elTimerMinutes) elTimerMinutes.textContent = String(m).padStart(2, "0");
-    if (elTimerSeconds) elTimerSeconds.textContent = String(s).padStart(2, "0");
-  } else {
-    if (elTimerHours) elTimerHours.textContent = "00";
-    if (elTimerMinutes) elTimerMinutes.textContent = "00";
-    if (elTimerSeconds) elTimerSeconds.textContent = "00";
-  }
   if (state.netMode) {
     const sNet = state.net as NetClient;
-    let timerText = "";
-    if (state.turnDeadline) {
-      const sec = Math.max(0, Math.ceil((state.turnDeadline - Date.now()) / 1000));
-      timerText = ` • Turn: ${sec}s`;
-    }
-    if ((state as any).matchDeadline) {
-      const sec2 = Math.max(0, Math.ceil(((state as any).matchDeadline - Date.now()) / 1000));
-      const m2 = Math.floor(sec2 / 60);
-      const s2 = sec2 % 60;
-      timerText += ` • Match: ${String(m2).padStart(2, "0")}:${String(s2).padStart(2, "0")}`;
-    }
-    elMpInfo.textContent = `Room: ${sNet.roomId}${timerText}`;
+    elMpInfo.textContent = `Room: ${sNet.roomId}`;
   }
 }
 
@@ -1201,7 +1450,7 @@ elBtnPlay.onclick = () => {
   if (!room) return;
   const summary = state.rooms.find(r => r.id === room);
   if (!summary) return;
-  const canPlay = !summary.started && summary.players.length === 1;
+  const canPlay = !summary.started && summary.players.length < 4;
   if (!canPlay) { elMpInfo.textContent = "Room busy"; return; }
   const name = elMpName.value || "Player";
   state.net?.joinRoom(room, name, (ok) => { elMpInfo.textContent = ok ? "Joined" : "Failed"; if (ok) { state.stage = "game"; render(); } });
@@ -1287,7 +1536,7 @@ if (elBtnFindCreate) {
       if (elMpInfo) elMpInfo.textContent = roomId ? "Room created" : "";
       if (elBtnSlot1Ready) { elBtnSlot1Ready.disabled = false; (elBtnSlot1Ready as any).dataset.ready = "false"; elBtnSlot1Ready.textContent = "Ready"; }
       if (elSlot1Ready) { elSlot1Ready.textContent = "Not Ready"; (elSlot1Ready as any).dataset.ready = "false"; }
-      if (elLobbyReadyChip) elLobbyReadyChip.textContent = "0/2 ready";
+      if (elLobbyReadyChip) elLobbyReadyChip.textContent = "0/4 ready";
     });
   };
 }
@@ -1306,7 +1555,7 @@ if (elBtnFindJoin) {
         if (elSlot2Ready) { elSlot2Ready.textContent = "Not Ready"; (elSlot2Ready as any).dataset.ready = "false"; }
         const r1 = (elSlot1Ready as any)?.dataset?.ready === "true" ? 1 : 0;
         const r2 = (elSlot2Ready as any)?.dataset?.ready === "true" ? 1 : 0;
-        if (elLobbyReadyChip) elLobbyReadyChip.textContent = `${r1 + r2}/2 ready`;
+        if (elLobbyReadyChip) elLobbyReadyChip.textContent = `${r1 + r2}/4 ready`;
       }
     });
   };
@@ -1322,8 +1571,12 @@ if (elBtnCopyRoom) {
 }
 if (elBtnSlot1Take) { elBtnSlot1Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 0, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 1" : "Failed"; if (ok && elBtnSlot1Ready) { elBtnSlot1Ready.disabled = false; elBtnSlot1Ready.textContent = "Ready"; (elBtnSlot1Ready as any).dataset.ready = "false"; } }); }; }
 if (elBtnSlot2Take) { elBtnSlot2Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 1, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 2" : "Failed"; if (ok && elBtnSlot2Ready) { elBtnSlot2Ready.disabled = false; elBtnSlot2Ready.textContent = "Ready"; (elBtnSlot2Ready as any).dataset.ready = "false"; } }); }; }
+if (elBtnSlot3Take) { elBtnSlot3Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 2, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 3" : "Failed"; if (ok && elBtnSlot3Ready) { elBtnSlot3Ready.disabled = false; elBtnSlot3Ready.textContent = "Ready"; (elBtnSlot3Ready as any).dataset.ready = "false"; } }); }; }
+if (elBtnSlot4Take) { elBtnSlot4Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 3, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 4" : "Failed"; if (ok && elBtnSlot4Ready) { elBtnSlot4Ready.disabled = false; elBtnSlot4Ready.textContent = "Ready"; (elBtnSlot4Ready as any).dataset.ready = "false"; } }); }; }
 if (elBtnSlot1Leave) { elBtnSlot1Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot1Take) elBtnSlot1Take.disabled = false; if (elBtnSlot1Ready) { elBtnSlot1Ready.disabled = true; elBtnSlot1Ready.textContent = "Ready"; (elBtnSlot1Ready as any).dataset.ready = "false"; } } }); }; }
 if (elBtnSlot2Leave) { elBtnSlot2Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot2Take) elBtnSlot2Take.disabled = false; if (elBtnSlot2Ready) { elBtnSlot2Ready.disabled = true; elBtnSlot2Ready.textContent = "Ready"; (elBtnSlot2Ready as any).dataset.ready = "false"; } } }); }; }
+if (elBtnSlot3Leave) { elBtnSlot3Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot3Take) elBtnSlot3Take.disabled = false; if (elBtnSlot3Ready) { elBtnSlot3Ready.disabled = true; elBtnSlot3Ready.textContent = "Ready"; (elBtnSlot3Ready as any).dataset.ready = "false"; } } }); }; }
+if (elBtnSlot4Leave) { elBtnSlot4Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot4Take) elBtnSlot4Take.disabled = false; if (elBtnSlot4Ready) { elBtnSlot4Ready.disabled = true; elBtnSlot4Ready.textContent = "Ready"; (elBtnSlot4Ready as any).dataset.ready = "false"; } } }); }; }
 if (elBtnSlot1Ready) {
   elBtnSlot1Ready.onclick = () => {
     const cur = (elSlot1Ready as any)?.dataset?.ready === "true";
@@ -1352,6 +1605,36 @@ if (elBtnSlot2Ready) {
       return;
     }
     state.net?.setSeatReady(1, next, (ok3) => { if (!ok3 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 2"; });
+  };
+}
+if (elBtnSlot3Ready) {
+  elBtnSlot3Ready.onclick = () => {
+    const cur = (elSlot3Ready as any)?.dataset?.ready === "true";
+    const next = !cur;
+    const name = elMpName.value || "Player";
+    if (!state.net?.playerId) {
+      state.net?.takeSeatAt(name, 2, (ok) => {
+        if (!ok) { if (elLobbyStatus) elLobbyStatus.textContent = "Seat 3 occupied"; return; }
+        state.net?.setSeatReady(2, next, (ok2) => { if (!ok2 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 3"; });
+      });
+      return;
+    }
+    state.net?.setSeatReady(2, next, (ok3) => { if (!ok3 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 3"; });
+  };
+}
+if (elBtnSlot4Ready) {
+  elBtnSlot4Ready.onclick = () => {
+    const cur = (elSlot4Ready as any)?.dataset?.ready === "true";
+    const next = !cur;
+    const name = elMpName.value || "Player";
+    if (!state.net?.playerId) {
+      state.net?.takeSeatAt(name, 3, (ok) => {
+        if (!ok) { if (elLobbyStatus) elLobbyStatus.textContent = "Seat 4 occupied"; return; }
+        state.net?.setSeatReady(3, next, (ok2) => { if (!ok2 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 4"; });
+      });
+      return;
+    }
+    state.net?.setSeatReady(3, next, (ok3) => { if (!ok3 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 4"; });
   };
 }
 if (elBtnLobbyStart) { elBtnLobbyStart.onclick = () => { state.net?.startMatch(); }; }
@@ -1493,6 +1776,8 @@ function normalizeSettings(obj: any): AppSettings {
 }
 if (elSlot1Ready) (elSlot1Ready as any).dataset.ready = "false";
 if (elSlot2Ready) (elSlot2Ready as any).dataset.ready = "false";
+if (elSlot3Ready) (elSlot3Ready as any).dataset.ready = "false";
+if (elSlot4Ready) (elSlot4Ready as any).dataset.ready = "false";
 function renderRecentList(items: { id: string; ended: number; reason: string; players: { name: string; totalScore: number }[] }[]): void {
   if (!elRecentList) return;
   elRecentList.innerHTML = "";
@@ -1509,3 +1794,32 @@ function renderRecentList(items: { id: string; ended: number; reason: string; pl
     elRecentList.appendChild(card);
   });
 }
+if (elDiscardTop) {
+  elDiscardTop.addEventListener("dragover", (e) => { e.preventDefault(); });
+  elDiscardTop.addEventListener("drop", (e) => {
+    e.preventDefault();
+    const cur = state.players[state.current];
+    if (!cur.hasDrawn) { showToast("Draw first"); return; }
+    const raw = e.dataTransfer?.getData("text/plain") || "";
+    const idx = Number(raw);
+    if (!Number.isFinite(idx)) return;
+    state.selectedIndices = [idx];
+    elBtnDiscard.click();
+  });
+}
+const elSeat1 = document.getElementById("seat1") as HTMLDetailsElement;
+const elSeat2 = document.getElementById("seat2") as HTMLDetailsElement;
+const elSeat3 = document.getElementById("seat3") as HTMLDetailsElement;
+const elSeat4 = document.getElementById("seat4") as HTMLDetailsElement;
+const elSlot1SummaryStatus = document.getElementById("slot1-summary-status") as HTMLElement;
+const elSlot2SummaryStatus = document.getElementById("slot2-summary-status") as HTMLElement;
+const elSlot3SummaryStatus = document.getElementById("slot3-summary-status") as HTMLElement;
+const elSlot4SummaryStatus = document.getElementById("slot4-summary-status") as HTMLElement;
+const elSlot1SummaryReady = document.getElementById("slot1-summary-ready") as HTMLElement;
+const elSlot2SummaryReady = document.getElementById("slot2-summary-ready") as HTMLElement;
+const elSlot3SummaryReady = document.getElementById("slot3-summary-ready") as HTMLElement;
+const elSlot4SummaryReady = document.getElementById("slot4-summary-ready") as HTMLElement;
+const elSlot1SummaryYou = document.getElementById("slot1-summary-you") as HTMLElement;
+const elSlot2SummaryYou = document.getElementById("slot2-summary-you") as HTMLElement;
+const elSlot3SummaryYou = document.getElementById("slot3-summary-you") as HTMLElement;
+const elSlot4SummaryYou = document.getElementById("slot4-summary-you") as HTMLElement;

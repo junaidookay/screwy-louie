@@ -4,7 +4,7 @@ import { Card } from "../engine/card";
 export type ServerRoomState = {
   id: string;
   handNumber: number;
-  players: { id: string; name: string; hand: Card[]; hasDrawn: boolean; didDiscard: boolean; totalScore: number; ready: boolean }[];
+  players: { id: string; name: string; hand: Card[]; hasDrawn: boolean; didDiscard: boolean; laidGroups: Card[][]; laidRuns: Card[][]; laidComplete: boolean; totalScore: number; ready: boolean }[];
   currentIndex: number;
   drawPile: Card[];
   discardPile: Card[];
@@ -98,14 +98,18 @@ export class NetClient {
     this.socket?.emit("giveDiscardTo", { roomId: this.roomId, playerId: this.playerId, targetId }, () => {});
   }
 
-  layGroup(indices: number[]): void {
-    if (!this.roomId || !this.playerId) return;
-    this.socket?.emit("layGroup", { roomId: this.roomId, playerId: this.playerId, indices }, () => {});
+  layGroup(indices: number[], cb?: (ok: boolean, err?: string) => void): void {
+    if (!this.roomId || !this.playerId) return cb && cb(false, "not_in_room");
+    this.socket?.emit("layGroup", { roomId: this.roomId, playerId: this.playerId, indices }, (res: any) => {
+      if (cb) cb(!!(res && res.ok), res?.error);
+    });
   }
 
-  layRun(indices: number[]): void {
-    if (!this.roomId || !this.playerId) return;
-    this.socket?.emit("layRun", { roomId: this.roomId, playerId: this.playerId, indices }, () => {});
+  layRun(indices: number[], cb?: (ok: boolean, err?: string) => void): void {
+    if (!this.roomId || !this.playerId) return cb && cb(false, "not_in_room");
+    this.socket?.emit("layRun", { roomId: this.roomId, playerId: this.playerId, indices }, (res: any) => {
+      if (cb) cb(!!(res && res.ok), res?.error);
+    });
   }
 
   hit(targetId: string, type: "group" | "run", index: number, addIndices: number[]): void {

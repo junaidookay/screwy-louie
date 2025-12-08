@@ -45,7 +45,7 @@ const turnTimers = new Map<string, NodeJS.Timeout>();
 const lobbyTimers = new Map<string, NodeJS.Timeout>();
 const matchTimers = new Map<string, NodeJS.Timeout>();
 const disconnectTimers = new Map<string, NodeJS.Timeout>();
-const TURN_TIMEOUT_MS = 30000;
+const TURN_TIMEOUT_MS = 24 * 60 * 60 * 1000;
 const MATCH_TIMEOUT_MS = 30 * 60 * 1000;
 const recentMatches: { id: string; ended: number; reason: string; players: { name: string; totalScore: number }[] }[] = [];
 const spectatorBySocket = new Map<string, { roomId: string; id: string }>();
@@ -348,7 +348,7 @@ io.on("connection", (socket) => {
     const room = rooms.get(roomId);
     if (!room) return cb({ error: "not_found" });
     if (room.started && !room.handComplete) return cb({ error: "in_progress" });
-    if (!room.started && room.players.length >= 2) return cb({ error: "full" });
+    if (!room.started && room.players.length >= 4) return cb({ error: "full" });
     const player: PlayerSeat = { id: uuidv4(), name: name || "Player", hand: [], hasDrawn: false, didDiscard: false, laidGroups: [], laidRuns: [], laidComplete: false, totalScore: 0, ready: false };
     room.players.push(player);
     socket.join(room.id);
@@ -396,7 +396,7 @@ io.on("connection", (socket) => {
   socket.on("takeSeat", ({ roomId, name }, cb) => {
     const room = rooms.get(roomId);
     if (!room) return cb({ error: "not_found" });
-    if (!room.started && room.players.length >= 2) return cb({ error: "full" });
+    if (!room.started && room.players.length >= 4) return cb({ error: "full" });
     const sidInfo = spectatorBySocket.get(socket.id);
     const player: PlayerSeat = { id: uuidv4(), name: name || "Player", hand: [], hasDrawn: false, didDiscard: false, laidGroups: [], laidRuns: [], laidComplete: false, totalScore: 0, ready: false };
     room.players.push(player);
@@ -415,9 +415,9 @@ io.on("connection", (socket) => {
   socket.on("takeSeatAt", ({ roomId, name, toIndex }, cb) => {
     const room = rooms.get(roomId);
     if (!room) return cb({ error: "not_found" });
-    if (!room.started && room.players.length >= 2) return cb({ error: "full" });
+    if (!room.started && room.players.length >= 4) return cb({ error: "full" });
     const player: PlayerSeat = { id: uuidv4(), name: name || "Player", hand: [], hasDrawn: false, didDiscard: false, laidGroups: [], laidRuns: [], laidComplete: false, totalScore: 0, ready: false };
-    const dest = Math.max(0, Math.min(1, Number(toIndex) || 0));
+    const dest = Math.max(0, Math.min(3, Number(toIndex) || 0));
     room.players.splice(dest, 0, player);
     const sidInfo = spectatorBySocket.get(socket.id);
     if (sidInfo) {
@@ -496,7 +496,6 @@ io.on("connection", (socket) => {
     const info = playerBySocket.get(socket.id);
     if (!info || info.roomId !== room.id) return cb({ error: "not_player" });
     if (room.players.length < 2) return cb({ error: "need_players" });
-    if (room.players.some(p => !p.ready)) return cb({ error: "need_ready" });
     room.started = true;
     deal(room);
     broadcast(io, room);
@@ -539,7 +538,7 @@ io.on("connection", (socket) => {
   socket.on("setSeatReady", ({ roomId, seatIndex, ready }, cb) => {
     const room = rooms.get(roomId);
     if (!room) return cb && cb({ error: "not_found" });
-    const idx = Math.max(0, Math.min(1, Number(seatIndex) || 0));
+    const idx = Math.max(0, Math.min(3, Number(seatIndex) || 0));
     const occupant = room.players[idx];
     if (!occupant) return cb && cb({ error: "empty" });
     const info = playerBySocket.get(socket.id);
@@ -665,6 +664,7 @@ io.on("connection", (socket) => {
     const cur = room.players[room.currentIndex];
     if (cur.id !== playerId) return cb({ error: "turn" });
     if (room.handComplete) return cb({ error: "hand_complete" });
+    if (!cur.hasDrawn) return cb({ error: "need_draw" });
     if (!Array.isArray(indices) || indices.length < 3) return cb({ error: "count" });
     {
       const reqs = getPhaseRequirementsForHand(room.handNumber);
@@ -694,6 +694,7 @@ io.on("connection", (socket) => {
     const cur = room.players[room.currentIndex];
     if (cur.id !== playerId) return cb({ error: "turn" });
     if (room.handComplete) return cb({ error: "hand_complete" });
+    if (!cur.hasDrawn) return cb({ error: "need_draw" });
     if (!Array.isArray(indices) || indices.length < 4) return cb({ error: "count" });
     {
       const reqs = getPhaseRequirementsForHand(room.handNumber);
