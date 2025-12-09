@@ -48,7 +48,7 @@ function rankLabel(r: Card["rank"]): string {
 }
 
 function cardImagePath(c: Card): string {
-  if (c.rank === "Joker") return "Card Game Assets/Cards/Joker Card.png";
+  if (c.rank === "Joker") return "Card Game Assets/Cards/Joker of Spades Card.png";
   if (!c.suit) return "";
   const rl = rankLabel(c.rank);
   return `Card Game Assets/Cards/${rl} of ${c.suit} Card.png`;
@@ -56,6 +56,7 @@ function cardImagePath(c: Card): string {
 
 function cardImageCandidates(c: Card): string[] {
   if (c.rank === "Joker") return [
+    "Card Game Assets/Cards/Joker of Spades Card.png",
     "Card Game Assets/Cards/Joker Card.png",
     "Card Game Assets/Cards/Joker.png",
   ];
@@ -319,6 +320,7 @@ function showToast(text: string): void {
 }
 
 let hoverPreviewEl: HTMLElement | null = null;
+let hoverHideTimer: any = null;
 function ensureHoverPreview(): HTMLElement {
   if (!hoverPreviewEl) {
     const el = document.createElement("div");
@@ -356,6 +358,7 @@ function positionHoverPreview(x: number, y: number): void {
 
 function showHoverPreview(c: Card, x: number, y: number): void {
   const el = ensureHoverPreview();
+  if (hoverHideTimer) { try { clearTimeout(hoverHideTimer); } catch {} hoverHideTimer = null; }
   setBackgroundCard(el, c);
   positionHoverPreview(x, y);
   el.style.opacity = "1";
@@ -370,7 +373,7 @@ function moveHoverPreview(x: number, y: number): void {
 function hideHoverPreview(): void {
   if (!hoverPreviewEl) return;
   hoverPreviewEl.style.opacity = "0";
-  setTimeout(() => { if (hoverPreviewEl) hoverPreviewEl.style.display = "none"; }, 140);
+  hoverHideTimer = setTimeout(() => { if (hoverPreviewEl) hoverPreviewEl.style.display = "none"; hoverHideTimer = null; }, 140);
 }
 
 let lobbyTimerHandle: any = null;
@@ -463,24 +466,39 @@ function render(): void {
     const container = document.createElement("div");
     container.className = "player flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 shadow-sm";
     const title = document.createElement("div");
-    title.className = "flex items-center gap-2";
+    title.className = "player-header flex items-center gap-2";
     const left = document.createElement("div");
+    left.className = "name-block";
+    const headerLine = document.createElement("div"); headerLine.className = "header-line inline-flex items-center gap-2";
+    const metaLine = document.createElement("div"); metaLine.className = "meta-line inline-flex items-center gap-2 flex-wrap";
     const laidInfo = `G${p.laidGroups.length} R${p.laidRuns.length} • Total ${p.totalScore}`;
     const sid = state.netMode && p.serverId ? ` (${p.serverId.slice(0, 6)})` : "";
     const nameSpan = document.createElement("span"); nameSpan.className = "font-semibold"; nameSpan.textContent = `${p.name}${sid}`;
-    left.appendChild(nameSpan);
+    headerLine.appendChild(nameSpan);
     if (state.current === p.id) {
       const badge = document.createElement("span");
-      badge.textContent = "Turn";
       badge.className = "ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 bg-primary text-white text-xs font-bold";
-      left.appendChild(badge);
+      badge.innerHTML = `<span class='material-symbols-outlined' style='font-size:14px'>play_arrow</span><span>Turn</span>`;
+      headerLine.appendChild(badge);
+      container.classList.add("my-turn");
     }
-    const infoSpan = document.createElement("span"); infoSpan.className = "text-xs text-gray-600 dark:text-gray-300"; infoSpan.textContent = laidInfo; left.appendChild(infoSpan);
-    const right = document.createElement("div"); right.className = "text-sm";
-    right.textContent = `Cards: ${p.hand.length}`;
+    const chip = document.createElement("span");
+    chip.className = "stat-chip";
+    chip.innerHTML = `
+      <span class='material-symbols-outlined chip-icon'>groups</span><span>G${p.laidGroups.length}</span>
+      <span class='chip-sep'>•</span>
+      <span class='material-symbols-outlined chip-icon'>alt_route</span><span>R${p.laidRuns.length}</span>
+      <span class='chip-sep'>•</span>
+      <span class='material-symbols-outlined chip-icon'>scoreboard</span><span>Total ${p.totalScore}</span>
+    `;
+    metaLine.appendChild(chip);
+    const right = document.createElement("div"); right.className = "player-cards text-sm inline-flex items-center gap-2";
+    right.innerHTML = `<span class='material-symbols-outlined' style='font-size:16px'>style</span><span>Cards: ${p.hand.length}</span>`;
+    metaLine.appendChild(right);
+    left.appendChild(headerLine);
+    left.appendChild(metaLine);
     title.appendChild(left);
     container.appendChild(title);
-    container.appendChild(right);
     elPlayers.appendChild(container);
   }
   if (state.netMode && state.matchComplete && Array.isArray(state.lastScores) && (state as any).scorePopShownHand !== state.handNumber) {
@@ -497,7 +515,7 @@ function render(): void {
       setTimeout(() => { pop.remove(); }, 1800);
     });
   }
-  const myId = (state.net as NetClient)?.playerId || null;
+    const myId = (state.net as NetClient)?.playerId || null;
   const isSpectator = state.netMode && !myId;
   const myIdx = !isSpectator && myId ? state.players.findIndex(pp => pp.serverId === myId) : -1;
   const my = myIdx >= 0 ? state.players[myIdx] : state.players[state.current];
@@ -562,7 +580,7 @@ function render(): void {
     elMpInfo.textContent = `Room: ${s.roomId}`;
     if ((state as any).spectators && Array.isArray((state as any).spectators)) {
       const specs = (state as any).spectators as { id: string; name: string }[];
-      if (elSpectators) elSpectators.innerHTML = specs.length ? specs.map(x => x.name).join(", ") : "None";
+      if (elSpectators) elSpectators.innerHTML = specs.length ? `Spectators: ${specs.map(x => x.name).join(", ")}` : "Spectators: None";
     }
   }
 
@@ -579,9 +597,9 @@ function render(): void {
     p.hand.forEach((c, idx) => {
       const outer = document.createElement("div");
       const isSel = state.current === p.id && state.selectedIndices.includes(idx);
-      outer.className = "flex flex-col gap-3" + (isSel ? " transform -translate-y-4" : "");
+      outer.className = "flex flex-col gap-3" + (isSel ? " selected-frame transform -translate-y-4" : "");
       const inner = document.createElement("div");
-      inner.className = "w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-2 hover:ring-2 hover:ring-primary/40 transition-all" + (isSel ? " ring-4 ring-primary" : "");
+      inner.className = "w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all" + (isSel ? " selected-card" : "");
       setBackgroundCard(inner, c);
       inner.title = formatCard(c);
       {
@@ -599,7 +617,7 @@ function render(): void {
           clickTimer = window.setTimeout(() => {
             if (state.current !== p.id) { clickTimer = null; return; }
             const pos = state.selectedIndices.indexOf(idx);
-            if (pos >= 0) state.selectedIndices.splice(pos, 1); else state.selectedIndices.push(idx);
+            if (pos >= 0) { state.selectedIndices.splice(pos, 1); hideHoverPreview(); } else { state.selectedIndices.push(idx); }
             render();
             clickTimer = null;
           }, 250);
@@ -651,7 +669,7 @@ function render(): void {
       const grid = document.createElement("div"); grid.className = "flex flex-col gap-2";
       p.laidGroups.forEach((g, gi) => {
         const row = document.createElement("div"); row.className = "flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-2 py-1 slide-in-row";
-        const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300"; label.textContent = `Group ${gi + 1}`; row.appendChild(label);
+        const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300 inline-flex items-center gap-1"; label.innerHTML = `<span class='material-symbols-outlined' style='font-size:14px'>groups</span><span>Group ${gi + 1}</span>`; row.appendChild(label);
         const cardsWrap = document.createElement("div"); cardsWrap.className = "flex items-center gap-2";
         g.forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-12 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
         row.appendChild(cardsWrap);
@@ -685,7 +703,7 @@ function render(): void {
       });
       p.laidRuns.forEach((r, ri) => {
         const row = document.createElement("div"); row.className = "flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-2 py-1 slide-in-row";
-        const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300"; label.textContent = `Run ${ri + 1}`; row.appendChild(label);
+        const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300 inline-flex items-center gap-1"; label.innerHTML = `<span class='material-symbols-outlined' style='font-size:14px'>alt_route</span><span>Run ${ri + 1}</span>`; row.appendChild(label);
         const cardsWrap = document.createElement("div"); cardsWrap.className = "flex items-center gap-2";
         r.forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-12 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
         row.appendChild(cardsWrap);
@@ -730,6 +748,7 @@ function render(): void {
   const isSpectatorSel = state.netMode && !myIdSel;
   const myIdxSel = !isSpectatorSel && myIdSel ? state.players.findIndex(pp => pp.serverId === myIdSel) : -1;
   const myTurnSel = myIdxSel >= 0 && state.current === myIdxSel;
+  if (elTableArea) elTableArea.classList.toggle("my-turn", myTurnSel || (!state.netMode));
   const myHasDrawnSel = myTurnSel ? state.players[myIdxSel].hasDrawn : false;
   const curSel = myTurnSel ? state.selectedIndices.map(i => state.players[myIdxSel].hand[i]) : [];
   const canGroup = myHasDrawnSel && curSel.length >= 3 && isValidGroup(curSel);
@@ -1034,39 +1053,6 @@ elBtnHit.onclick = () => {
   render();
 };
 
-elBtnNextHand.onclick = () => {
-  if (state.handNumber >= 6) {
-    state.matchComplete = true;
-    render();
-    return;
-  }
-  state.handNumber += 1;
-  const deck = new Deck(createDoubleDeck(true));
-  deck.shuffle();
-  state.drawPile = deck;
-  state.discardPile = [];
-  state.selectedIndices = [];
-  for (const p of state.players) {
-    p.hand = [];
-    p.hasDrawn = false;
-    p.didDiscard = false;
-    p.laidGroups = [];
-    p.laidRuns = [];
-    p.laidComplete = false;
-  }
-  const deal = getDealCountForHand(state.handNumber);
-  for (const p of state.players) {
-    for (let j = 0; j < deal; j++) {
-      const c = state.drawPile.draw();
-      if (!c) break;
-      p.hand.push(c);
-    }
-  }
-  const first = state.drawPile.draw();
-  if (first) state.discardPile.push(first);
-  elScoreboard.style.display = "none";
-  render();
-};
 
 function checkGoOutAfterDiscard(): void {
   const cur = state.players[state.current];
@@ -1372,21 +1358,6 @@ elMpSpectate.onclick = () => {
 elMpStart.onclick = () => {
   state.net?.startMatch();
 };
-elBtnNextHand.onclick = () => {
-  if (state.netMode && state.net) {
-    state.net.nextHand((ok, err) => {
-      if (!ok && err === "match_complete") {
-        try {
-          const rid = (state.net as NetClient)?.roomId || "";
-          if (rid) localStorage.removeItem("chat:" + rid);
-        } catch {}
-        state.stage = "match_summary";
-        render();
-      }
-    });
-    return;
-  }
-};
 
 elMpSetTimer.onclick = () => {
   const sec = Number(elMpTimer.value || "0");
@@ -1684,7 +1655,45 @@ if (elBtnSaveSettings) {
 }
 if (elBtnPlayAgain) { elBtnPlayAgain.onclick = () => { state.stage = "find"; render(); }; }
 if (elBtnReturnMenu) { elBtnReturnMenu.onclick = () => { state.stage = "title"; render(); }; }
-if (elBtnHandBack) { elBtnHandBack.onclick = () => { state.stage = "lobby"; render(); }; }
+if (elBtnHandBack) { elBtnHandBack.onclick = () => { state.stage = "find"; render(); }; }
+if (elBtnNextHand) {
+  elBtnNextHand.onclick = () => {
+    if (state.netMode && state.net) {
+      state.net.nextHand((ok, err) => {
+        if (!ok) {
+          if (err === "not_complete") showToast("Hand not complete yet");
+          else if (err === "match_complete") showToast("Match complete");
+          else showToast("Unable to start next hand");
+        }
+      });
+      return;
+    }
+    // Local mode fallback: start next hand
+    state.handNumber = Math.min(6, state.handNumber + 1);
+    const deck = new Deck(createDoubleDeck(true));
+    deck.shuffle();
+    const dealCount = getDealCountForHand(state.handNumber);
+    state.players.forEach((p) => {
+      p.hand = [];
+      for (let j = 0; j < dealCount; j++) {
+        const c = deck.draw();
+        if (c) p.hand.push(c);
+      }
+      p.hasDrawn = false;
+      p.didDiscard = false;
+      p.laidGroups = [];
+      p.laidRuns = [];
+      p.laidComplete = false;
+    });
+    const discardFirst = deck.draw();
+    state.drawPile = deck;
+    state.discardPile = discardFirst ? [discardFirst] : [];
+    state.current = 0;
+    state.lastScores = [];
+    state.stage = "game";
+    render();
+  };
+}
 
 if (elBtnToggleChat && elChatPanel) {
   elBtnToggleChat.onclick = () => {

@@ -110,6 +110,20 @@
       #btn-toggle-chat { overflow: visible !important; }
       #chat-unread { position: absolute; top: -6px; right: -6px; z-index: 20; box-shadow: 0 0 0 2px #fff; }
       .dark #chat-unread { box-shadow: 0 0 0 2px #0f172a; }
+      #table-area.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.10), rgba(43,140,238,0.06)); border-color: #2b8cee; box-shadow: 0 0 0 2px rgba(43,140,238,0.25), 0 10px 24px rgba(43,140,238,0.20); }
+      .dark #table-area.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.12), rgba(43,140,238,0.08)); box-shadow: 0 0 0 2px rgba(43,140,238,0.35), 0 10px 24px rgba(43,140,238,0.28); }
+      .selected-frame { position: relative; padding: 2px; border-radius: 12px; background: conic-gradient(from 90deg at 50% 50%, #2b8cee 0%, #a78bfa 50%, #2b8cee 100%); }
+      .selected-frame > * { border-radius: 10px; }
+      .selected-card { position: relative; }
+      .selected-card::before { content: ""; position: absolute; inset: -2px; border-radius: 12px; padding: 2px; background: conic-gradient(from 90deg at 50% 50%, #2b8cee 0%, #a78bfa 50%, #2b8cee 100%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+      .player.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.12), rgba(43,140,238,0.06)); border-color: #2b8cee !important; box-shadow: 0 0 0 2px rgba(43,140,238,0.25), 0 10px 24px rgba(43,140,238,0.18); }
+      .dark .player.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.16), rgba(43,140,238,0.08)); box-shadow: 0 0 0 2px rgba(43,140,238,0.35), 0 10px 24px rgba(43,140,238,0.28); }
+      .stat-chip { display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 2px 8px; background-color: #f3f4f6; color: #111418; border: 1px solid #e5e7eb; }
+      .dark .stat-chip { background-color: rgba(16,25,34,0.5); color: #e6edf3; border-color: #374151; }
+      .stat-chip .chip-sep { opacity: 0.6; }
+      .player.my-turn .stat-chip { border-color: #2b8cee; box-shadow: 0 0 0 1px rgba(43,140,238,0.25) inset; }
+      .stat-chip .material-symbols-outlined { font-size: 14px; line-height: 1; }
+      .name-block { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
       /* Mobile polish */
       @media (max-width: 480px) {
         .lobby-seat-actions { flex-direction: column; gap: 6px; }
@@ -125,9 +139,30 @@
         .lobby-controls > div { width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
         #btn-lobby-start { width: 100%; }
         #lobby-ready-chip { margin-top: 4px; }
-        #hit-controls { flex-wrap: wrap; justify-content: center; gap: 8px; }
-        #sel-hit-player, #sel-hit-type, #sel-hit-index { min-width: 100px; height: font-size: 0.85rem; }
-        #btn-hit { width: 100%; max-width: 260px; height: font-size: 0.9rem; }
+        .player { flex-wrap: wrap; align-items: center; gap: 8px; }
+        .player-header { justify-content: center; width: 100%; }
+        .player .name-block { flex: 1 1 auto; min-width: 220px; }
+        .name-block { display: flex; flex-direction: column; gap: 6px; }
+        .name-block .header-line { display: flex; justify-content: center; gap: 8px; }
+        .name-block .meta-line { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+        .player .stat-chip { margin-top: 0; }
+        .player .player-cards { margin-left: 0; }
+        .stat-chip { gap: 6px; padding: 2px 6px; }
+        .stat-chip .material-symbols-outlined { font-size: 12px; }
+      }
+      @media (min-width: 481px) {
+        .name-block { display: inline-flex; align-items: center; gap: 10px; }
+        .name-block .header-line { display: inline-flex; align-items: center; gap: 8px; }
+        .name-block .meta-line { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
+        .selected-frame { padding: 0 !important; background: transparent !important; }
+      }
+        #hit-controls { flex-wrap: nowrap; align-items: center; gap: 8px; }
+        #sel-hit-player, #sel-hit-type, #sel-hit-index { min-width: 120px; font-size: 0.85rem; height: 3rem; }
+        #btn-hit { width: auto; max-width: none; font-size: 0.9rem; height: 3rem; }
+        @media (max-width: 640px) {
+          #hit-controls { flex-wrap: wrap; justify-content: center; }
+          #btn-hit { width: 100%; max-width: 280px; }
+        }
         .lobby-seat { overflow: hidden; }
         .lobby-seat > summary { list-style: none; }
         .lobby-seat > summary::-webkit-details-marker { display: none; }
@@ -370,7 +405,7 @@
                   <div class="flex flex-col items-center">
                     <p class="text-xs text-gray-500">Draw Pile</p>
                     <div id="draw-back" class="relative w-24 bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md"></div>
-                    <p id="draw-size" class="text-sm font-semibold"></p>
+                    <p id="draw-size" class="mt-2 text-sm font-semibold"></p>
                     <button id="btn-draw" class="mt-2 h-10 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm">Draw</button>
                   </div>
                   <div class="w-px h-16 bg-gray-200 dark:bg-gray-700"></div>
@@ -387,7 +422,7 @@
             </div>
             <div class="sticky bottom-0 left-0 right-0 pt-4 border-t border-gray-200 dark:border-gray-800 bg-background-light/95 dark:bg-background-dark/90 backdrop-blur z-10">
               <div class="w-full max-w-7xl mx-auto px-4">
-                <div id="hand-grid" class="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] sm:grid-cols-[repeat(auto-fit,minmax(120px,1fr))] gap-3 p-4 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50"></div>
+                <div id="hand-grid" class="grid grid-cols-[repeat(auto-fit,110px)] sm:grid-cols-[repeat(auto-fit,120px)] justify-center gap-3 p-4 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50"></div>
                 <div class="flex flex-wrap items-center justify-center gap-3 pt-6 pb-2">
                   <button id="btn-lay-group" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                     <span class="material-symbols-outlined mr-2">layers</span>
@@ -428,10 +463,6 @@
               </div>
             </div>
             
-            <div id="scoreboard" class="hidden">
-              <div id="scores"></div>
-              <button id="btn-next-hand"></button>
-            </div>
             <div id="chat-panel" class="fixed right-4 bottom-24 z-20 w-[360px] max-w-[92vw] rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl">
               <div class="flex items-center justify-between px-3 py-2 border-b border-gray-200 dark:border-gray-700">
                 <p class="text-sm font-semibold">Room Chat</p>
