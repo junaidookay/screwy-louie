@@ -117,6 +117,11 @@ export class NetClient {
     this.socket?.emit("hit", { roomId: this.roomId, playerId: this.playerId, targetId, type, index, addIndices }, () => {});
   }
 
+  reorderHand(fromIndex: number, toIndex: number): void {
+    if (!this.roomId || !this.playerId) return;
+    this.socket?.emit("reorderHand", { roomId: this.roomId, playerId: this.playerId, fromIndex, toIndex }, () => {});
+  }
+
   nextHand(cb?: (ok: boolean, error?: string) => void): void {
     if (!this.roomId) return;
     this.socket?.emit("nextHand", { roomId: this.roomId }, (res: any) => {

@@ -751,6 +751,23 @@ io.on("connection", (socket) => {
     cb({ ok: true });
   });
 
+  socket.on("reorderHand", ({ roomId, playerId, fromIndex, toIndex }, cb) => {
+    const room = rooms.get(roomId);
+    if (!room) return cb && cb({ error: "not_found" });
+    const cur = room.players[room.currentIndex];
+    if (cur.id !== playerId) return cb && cb({ error: "turn" });
+    if (room.handComplete) return cb && cb({ error: "hand_complete" });
+    if (!Number.isFinite(fromIndex) || !Number.isFinite(toIndex)) return cb && cb({ error: "index" });
+    if (fromIndex === toIndex) return cb && cb({ ok: true });
+    const hand = cur.hand.slice();
+    const [moved] = hand.splice(fromIndex, 1);
+    if (!moved) return cb && cb({ error: "index" });
+    hand.splice(toIndex, 0, moved);
+    cur.hand = hand;
+    broadcast(io, room);
+    cb && cb({ ok: true });
+  });
+
   socket.on("nextHand", ({ roomId }, cb) => {
     const room = rooms.get(roomId);
     if (!room) return cb({ error: "not_found" });

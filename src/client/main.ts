@@ -3,7 +3,7 @@ import { Deck } from "../engine/deck";
 import { getDealCountForHand, getPhaseRequirementsForHand, PhaseRequirement } from "../engine/game";
 import { NetClient, ServerRoomState, RoomSummary } from "./net";
 import { scoreHand } from "../engine/scoring";
-import { isValidGroup, isValidRun } from "../engine/rules";
+import { isValidGroup, isValidRun, whyRunInvalid } from "../engine/rules";
 
 type Player = { id: number; serverId?: string; name: string; hand: Card[]; hasDrawn: boolean; didDiscard: boolean; laidGroups: Card[][]; laidRuns: Card[][]; laidComplete: boolean; totalScore: number };
 
@@ -646,6 +646,9 @@ function render(): void {
         if (!moved) return;
         curHand.splice(idx, 0, moved);
         p.hand = curHand;
+        if (state.netMode && state.net && p.serverId && (state.net as any).playerId === p.serverId) {
+          state.net.reorderHand(fromIdx, idx);
+        }
         render();
       });
       outer.appendChild(inner);
@@ -930,12 +933,12 @@ if (elBtnGive) elBtnGive.onclick = () => {
   if (state.discardPile.length === 0) return;
   const cur = state.players[state.current];
   if (state.netMode && state.net) {
-    const targetServerId = elSelTarget ? String(elSelTarget.value) : "";
+    const targetServerId = elHitPlayer ? String(elHitPlayer.value) : "";
     if (!targetServerId || (cur.serverId && targetServerId === cur.serverId)) return;
     state.net.giveDiscardTo(targetServerId);
     return;
   }
-  const targetId = elSelTarget ? Number(elSelTarget.value) : NaN;
+  const targetId = elHitPlayer ? Number(elHitPlayer.value) : NaN;
   const target = state.players.find(p => p.id === targetId);
   if (!target || target.id === cur.id) return;
   const top = state.discardPile.pop() as Card;
@@ -981,11 +984,12 @@ elBtnLayRun.onclick = () => {
   if (state.selectedIndices.length < 4) { showToast("Pick at least 4 cards for a run"); return; }
   const cards = state.selectedIndices.map(i => cur.hand[i]);
   if (state.netMode && state.net) {
-    state.net.layRun(state.selectedIndices.slice(), (ok, err) => { if (!ok) showToast(err === "count" ? "Pick at least 4 cards" : err === "need_draw" ? "Draw first" : "Not a sufficient run"); });
+    const explain = whyRunInvalid(cards);
+    state.net.layRun(state.selectedIndices.slice(), (ok, err) => { if (!ok) showToast(err === "count" ? "Pick at least 4 cards" : err === "need_draw" ? "Draw first" : (explain || "Not a sufficient run")); });
     state.selectedIndices = [];
     return;
   }
-  if (!isValidRun(cards)) { showToast("Not a sufficient run"); return; }
+  if (!isValidRun(cards)) { const reason = whyRunInvalid(cards) || "Not a sufficient run"; showToast(reason); return; }
   cur.laidRuns.push(cards);
   const keep: Card[] = [];
   cur.hand.forEach((c, i) => { if (!state.selectedIndices.includes(i)) keep.push(c); });
