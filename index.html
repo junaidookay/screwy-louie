@@ -334,11 +334,51 @@
                   </div>
                 </div>
               </details>
+              <details id="seat5" class="lobby-seat rounded-xl border bg-white dark:bg-gray-800" open>
+                <summary class="p-4 md:p-6 cursor-pointer select-none outline-none focus:ring-2 focus:ring-primary/50 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl font-bold">Player 5</span>
+                    <span id="slot5-summary-status" class="text-sm text-gray-600 dark:text-gray-300">Empty</span>
+                    <span id="slot5-summary-you" class="ml-1 inline-flex items-center rounded-full px-2 py-0.5 bg-primary text-white text-xs font-bold hidden">You</span>
+                  </div>
+                  <span id="slot5-summary-ready" class="text-xs text-gray-600 dark:text-gray-300">Not Ready</span>
+                </summary>
+                <div class="p-4 md:p-6 border-t border-gray-200 dark:border-gray-700">
+                  <p id="slot5-status" class="text-sm">Empty Slot</p>
+                  <span id="slot5-you" class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 bg-primary text-white text-xs font-bold hidden">You</span>
+                  <p id="slot5-ready" class="text-xs text-gray-600 dark:text-gray-300">Not Ready</p>
+                  <div class="pt-2 flex gap-2 lobby-seat-actions">
+                    <button id="btn-slot5-take" class="h-10 px-5 rounded-lg bg-primary text-white">Take Seat</button>
+                    <button id="btn-slot5-leave" class="h-10 px-5 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light">Leave Seat</button>
+                    <button id="btn-slot5-ready" class="h-10 px-5 rounded-lg bg-green-600 text-white">Ready</button>
+                  </div>
+                </div>
+              </details>
+              <details id="seat6" class="lobby-seat rounded-xl border bg-white dark:bg-gray-800" open>
+                <summary class="p-4 md:p-6 cursor-pointer select-none outline-none focus:ring-2 focus:ring-primary/50 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xl font-bold">Player 6</span>
+                    <span id="slot6-summary-status" class="text-sm text-gray-600 dark:text-gray-300">Empty</span>
+                    <span id="slot6-summary-you" class="ml-1 inline-flex items-center rounded-full px-2 py-0.5 bg-primary text-white text-xs font-bold hidden">You</span>
+                  </div>
+                  <span id="slot6-summary-ready" class="text-xs text-gray-600 dark:text-gray-300">Not Ready</span>
+                </summary>
+                <div class="p-4 md:p-6 border-t border-gray-200 dark:border-gray-700">
+                  <p id="slot6-status" class="text-sm">Empty Slot</p>
+                  <span id="slot6-you" class="ml-2 inline-flex items-center rounded-full px-2 py-0.5 bg-primary text-white text-xs font-bold hidden">You</span>
+                  <p id="slot6-ready" class="text-xs text-gray-600 dark:text-gray-300">Not Ready</p>
+                  <div class="pt-2 flex gap-2 lobby-seat-actions">
+                    <button id="btn-slot6-take" class="h-10 px-5 rounded-lg bg-primary text-white">Take Seat</button>
+                    <button id="btn-slot6-leave" class="h-10 px-5 rounded-lg bg-button-secondary-light dark:bg-button-secondary-dark text-text-light dark:text-background-light">Leave Seat</button>
+                    <button id="btn-slot6-ready" class="h-10 px-5 rounded-lg bg-green-600 text-white">Ready</button>
+                  </div>
+                </div>
+              </details>
             </div>
             <div class="flex flex-col items-center gap-2 px-4 py-3 lobby-controls">
               <button id="btn-lobby-start" class="h-14 px-6 rounded-lg bg-primary text-white text-lg font-bold">Start Match</button>
               <div class="flex items-center gap-3">
-                <span id="lobby-ready-chip" class="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-sm">0/4 ready</span>
+                <span id="lobby-ready-chip" class="px-3 py-1 rounded-lg bg-gray-200 dark:bg-gray-700 text-sm">0/6 ready</span>
                 <span id="lobby-timer" class="text-sm text-gray-700 dark:text-gray-300">02:00</span>
                 <button id="btn-lobby-extend" class="h-9 px-3 rounded-lg bg-black/5 dark:bg-white/10 text-sm">Wait +30s</button>
               </div>

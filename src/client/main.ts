@@ -254,26 +254,38 @@ const elSlot1Status = document.getElementById("slot1-status") as HTMLElement;
 const elSlot2Status = document.getElementById("slot2-status") as HTMLElement;
 const elSlot3Status = document.getElementById("slot3-status") as HTMLElement;
 const elSlot4Status = document.getElementById("slot4-status") as HTMLElement;
+const elSlot5Status = document.getElementById("slot5-status") as HTMLElement;
+const elSlot6Status = document.getElementById("slot6-status") as HTMLElement;
 const elSlot1You = document.getElementById("slot1-you") as HTMLElement;
 const elSlot2You = document.getElementById("slot2-you") as HTMLElement;
 const elSlot3You = document.getElementById("slot3-you") as HTMLElement;
 const elSlot4You = document.getElementById("slot4-you") as HTMLElement;
+const elSlot5You = document.getElementById("slot5-you") as HTMLElement;
+const elSlot6You = document.getElementById("slot6-you") as HTMLElement;
 const elBtnSlot1Take = document.getElementById("btn-slot1-take") as HTMLButtonElement;
 const elBtnSlot1Leave = document.getElementById("btn-slot1-leave") as HTMLButtonElement;
 const elBtnSlot2Take = document.getElementById("btn-slot2-take") as HTMLButtonElement;
 const elBtnSlot2Leave = document.getElementById("btn-slot2-leave") as HTMLButtonElement;
 const elBtnSlot3Take = document.getElementById("btn-slot3-take") as HTMLButtonElement;
 const elBtnSlot3Leave = document.getElementById("btn-slot3-leave") as HTMLButtonElement;
+const elBtnSlot5Take = document.getElementById("btn-slot5-take") as HTMLButtonElement;
+const elBtnSlot5Leave = document.getElementById("btn-slot5-leave") as HTMLButtonElement;
+const elBtnSlot6Take = document.getElementById("btn-slot6-take") as HTMLButtonElement;
+const elBtnSlot6Leave = document.getElementById("btn-slot6-leave") as HTMLButtonElement;
 const elBtnSlot4Take = document.getElementById("btn-slot4-take") as HTMLButtonElement;
 const elBtnSlot4Leave = document.getElementById("btn-slot4-leave") as HTMLButtonElement;
 const elSlot1Ready = document.getElementById("slot1-ready") as HTMLElement;
 const elSlot2Ready = document.getElementById("slot2-ready") as HTMLElement;
 const elSlot3Ready = document.getElementById("slot3-ready") as HTMLElement;
 const elSlot4Ready = document.getElementById("slot4-ready") as HTMLElement;
+const elSlot5Ready = document.getElementById("slot5-ready") as HTMLElement;
+const elSlot6Ready = document.getElementById("slot6-ready") as HTMLElement;
 const elBtnSlot1Ready = document.getElementById("btn-slot1-ready") as HTMLButtonElement;
 const elBtnSlot2Ready = document.getElementById("btn-slot2-ready") as HTMLButtonElement;
 const elBtnSlot3Ready = document.getElementById("btn-slot3-ready") as HTMLButtonElement;
 const elBtnSlot4Ready = document.getElementById("btn-slot4-ready") as HTMLButtonElement;
+const elBtnSlot5Ready = document.getElementById("btn-slot5-ready") as HTMLButtonElement;
+const elBtnSlot6Ready = document.getElementById("btn-slot6-ready") as HTMLButtonElement;
 const elBtnLobbyStart = document.getElementById("btn-lobby-start") as HTMLButtonElement;
 const elLobbyStatus = document.getElementById("lobby-status") as HTMLElement;
 const elLobbyReadyChip = document.getElementById("lobby-ready-chip") as HTMLElement;
@@ -1103,42 +1115,62 @@ function attachNet(): void {
     const p2 = s.players[1] || null;
     const p3 = s.players[2] || null;
     const p4 = s.players[3] || null;
+    const p5 = s.players[4] || null;
+    const p6 = s.players[5] || null;
     if (elSlot1Status) elSlot1Status.textContent = p1 ? (p1.name + (myId && p1.id === myId ? " (You)" : "")) : "Empty Slot";
     if (elSlot2Status) elSlot2Status.textContent = p2 ? (p2.name + (myId && p2.id === myId ? " (You)" : "")) : "Empty Slot";
     if (elSlot3Status) elSlot3Status.textContent = p3 ? (p3.name + (myId && p3.id === myId ? " (You)" : "")) : "Empty Slot";
     if (elSlot4Status) elSlot4Status.textContent = p4 ? (p4.name + (myId && p4.id === myId ? " (You)" : "")) : "Empty Slot";
+    if (elSlot5Status) elSlot5Status.textContent = p5 ? (p5.name + (myId && p5.id === myId ? " (You)" : "")) : "Empty Slot";
+    if (elSlot6Status) elSlot6Status.textContent = p6 ? (p6.name + (myId && p6.id === myId ? " (You)" : "")) : "Empty Slot";
     if (elSlot1SummaryStatus) elSlot1SummaryStatus.textContent = p1 ? p1.name : "Empty";
     if (elSlot2SummaryStatus) elSlot2SummaryStatus.textContent = p2 ? p2.name : "Empty";
     if (elSlot3SummaryStatus) elSlot3SummaryStatus.textContent = p3 ? p3.name : "Empty";
     if (elSlot4SummaryStatus) elSlot4SummaryStatus.textContent = p4 ? p4.name : "Empty";
+    if (elSlot5SummaryStatus) elSlot5SummaryStatus.textContent = p5 ? p5.name : "Empty";
+    if (elSlot6SummaryStatus) elSlot6SummaryStatus.textContent = p6 ? p6.name : "Empty";
     if (elSlot1SummaryReady) elSlot1SummaryReady.textContent = p1 ? (p1.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot2SummaryReady) elSlot2SummaryReady.textContent = p2 ? (p2.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot3SummaryReady) elSlot3SummaryReady.textContent = p3 ? (p3.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot4SummaryReady) elSlot4SummaryReady.textContent = p4 ? (p4.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot5SummaryReady) elSlot5SummaryReady.textContent = p5 ? (p5.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot6SummaryReady) elSlot6SummaryReady.textContent = p6 ? (p6.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot1You) elSlot1You.classList.toggle("hidden", !(p1 && myId && p1.id === myId));
     if (elSlot2You) elSlot2You.classList.toggle("hidden", !(p2 && myId && p2.id === myId));
     if (elSlot3You) elSlot3You.classList.toggle("hidden", !(p3 && myId && p3.id === myId));
     if (elSlot4You) elSlot4You.classList.toggle("hidden", !(p4 && myId && p4.id === myId));
+    if (elSlot5You) elSlot5You.classList.toggle("hidden", !(p5 && myId && p5.id === myId));
+    if (elSlot6You) elSlot6You.classList.toggle("hidden", !(p6 && myId && p6.id === myId));
     if (elSlot1SummaryYou) elSlot1SummaryYou.classList.toggle("hidden", !(p1 && myId && p1.id === myId));
     if (elSlot2SummaryYou) elSlot2SummaryYou.classList.toggle("hidden", !(p2 && myId && p2.id === myId));
     if (elSlot3SummaryYou) elSlot3SummaryYou.classList.toggle("hidden", !(p3 && myId && p3.id === myId));
     if (elSlot4SummaryYou) elSlot4SummaryYou.classList.toggle("hidden", !(p4 && myId && p4.id === myId));
+    if (elSlot5SummaryYou) elSlot5SummaryYou.classList.toggle("hidden", !(p5 && myId && p5.id === myId));
+    if (elSlot6SummaryYou) elSlot6SummaryYou.classList.toggle("hidden", !(p6 && myId && p6.id === myId));
     if (elBtnSlot1Take) elBtnSlot1Take.disabled = !!p1 || !!myId;
     if (elBtnSlot2Take) elBtnSlot2Take.disabled = !!p2 || !!myId;
     if (elBtnSlot3Take) elBtnSlot3Take.disabled = !!p3 || !!myId;
     if (elBtnSlot4Take) elBtnSlot4Take.disabled = !!p4 || !!myId;
+    if (elBtnSlot5Take) elBtnSlot5Take.disabled = !!p5 || !!myId;
+    if (elBtnSlot6Take) elBtnSlot6Take.disabled = !!p6 || !!myId;
     if (elBtnSlot1Leave) elBtnSlot1Leave.disabled = !(p1 && myId && p1.id === myId);
     if (elBtnSlot2Leave) elBtnSlot2Leave.disabled = !(p2 && myId && p2.id === myId);
     if (elBtnSlot3Leave) elBtnSlot3Leave.disabled = !(p3 && myId && p3.id === myId);
     if (elBtnSlot4Leave) elBtnSlot4Leave.disabled = !(p4 && myId && p4.id === myId);
+    if (elBtnSlot5Leave) elBtnSlot5Leave.disabled = !(p5 && myId && p5.id === myId);
+    if (elBtnSlot6Leave) elBtnSlot6Leave.disabled = !(p6 && myId && p6.id === myId);
     if (elSlot1Ready) elSlot1Ready.textContent = p1 ? (p1.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot2Ready) elSlot2Ready.textContent = p2 ? (p2.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot3Ready) elSlot3Ready.textContent = p3 ? (p3.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot4Ready) elSlot4Ready.textContent = p4 ? (p4.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot5Ready) elSlot5Ready.textContent = p5 ? (p5.ready ? "Ready" : "Not Ready") : "Not Ready";
+    if (elSlot6Ready) elSlot6Ready.textContent = p6 ? (p6.ready ? "Ready" : "Not Ready") : "Not Ready";
     if (elSlot1Ready) (elSlot1Ready as any).dataset.ready = String(!!(p1 && p1.ready));
     if (elSlot2Ready) (elSlot2Ready as any).dataset.ready = String(!!(p2 && p2.ready));
     if (elSlot3Ready) (elSlot3Ready as any).dataset.ready = String(!!(p3 && p3.ready));
     if (elSlot4Ready) (elSlot4Ready as any).dataset.ready = String(!!(p4 && p4.ready));
+    if (elSlot5Ready) (elSlot5Ready as any).dataset.ready = String(!!(p5 && p5.ready));
+    if (elSlot6Ready) (elSlot6Ready as any).dataset.ready = String(!!(p6 && p6.ready));
     const myReady = myId ? (s.players.find(x => x.id === myId)?.ready || false) : false;
     if (elBtnSlot1Ready) {
       const mine1 = !!(p1 && myId && p1.id === myId);
@@ -1168,11 +1200,27 @@ function attachNet(): void {
       elBtnSlot4Ready.textContent = mine4 ? (myReady ? "Unready" : "Ready") : "Ready";
       (elBtnSlot4Ready as any).dataset.ready = String(mine4 ? myReady : false);
     }
+    if (elBtnSlot5Ready) {
+      const mine5 = !!(p5 && myId && p5.id === myId);
+      const slot5Empty = !p5;
+      elBtnSlot5Ready.disabled = !(mine5 || slot5Empty);
+      elBtnSlot5Ready.textContent = mine5 ? (myReady ? "Unready" : "Ready") : "Ready";
+      (elBtnSlot5Ready as any).dataset.ready = String(mine5 ? myReady : false);
+    }
+    if (elBtnSlot6Ready) {
+      const mine6 = !!(p6 && myId && p6.id === myId);
+      const slot6Empty = !p6;
+      elBtnSlot6Ready.disabled = !(mine6 || slot6Empty);
+      elBtnSlot6Ready.textContent = mine6 ? (myReady ? "Unready" : "Ready") : "Ready";
+      (elBtnSlot6Ready as any).dataset.ready = String(mine6 ? myReady : false);
+    }
     const seats: HTMLDetailsElement[] = [];
     if (elSeat1) seats.push(elSeat1);
     if (elSeat2) seats.push(elSeat2);
     if (elSeat3) seats.push(elSeat3);
     if (elSeat4) seats.push(elSeat4);
+    if (elSeat5) seats.push(elSeat5);
+    if (elSeat6) seats.push(elSeat6);
     const attachAccordion = () => {
       if (seats.length === 0) return;
       const w = window.innerWidth || 0;
@@ -1195,10 +1243,10 @@ function attachNet(): void {
     });
     attachAccordion();
     const allReady = s.players.length >= 2 && s.players.every(x => x.ready);
-  if (elLobbyReadyChip) {
-    const rc = s.players.filter(x => x.ready).length;
-    elLobbyReadyChip.textContent = `${rc}/4 ready`;
-  }
+    if (elLobbyReadyChip) {
+      const rc = s.players.filter(x => x.ready).length;
+      elLobbyReadyChip.textContent = `${rc}/6 ready`;
+    }
   if (elBtnLobbyStart) {
     const isPlayer = !!myId && s.players.some(x => x.id === myId);
     elBtnLobbyStart.disabled = (s.players.length < 2) || s.started || !isPlayer;
@@ -1511,7 +1559,7 @@ if (elBtnFindCreate) {
       if (elMpInfo) elMpInfo.textContent = roomId ? "Room created" : "";
       if (elBtnSlot1Ready) { elBtnSlot1Ready.disabled = false; (elBtnSlot1Ready as any).dataset.ready = "false"; elBtnSlot1Ready.textContent = "Ready"; }
       if (elSlot1Ready) { elSlot1Ready.textContent = "Not Ready"; (elSlot1Ready as any).dataset.ready = "false"; }
-      if (elLobbyReadyChip) elLobbyReadyChip.textContent = "0/4 ready";
+      if (elLobbyReadyChip) elLobbyReadyChip.textContent = "0/6 ready";
     });
   };
 }
@@ -1530,7 +1578,7 @@ if (elBtnFindJoin) {
         if (elSlot2Ready) { elSlot2Ready.textContent = "Not Ready"; (elSlot2Ready as any).dataset.ready = "false"; }
         const r1 = (elSlot1Ready as any)?.dataset?.ready === "true" ? 1 : 0;
         const r2 = (elSlot2Ready as any)?.dataset?.ready === "true" ? 1 : 0;
-        if (elLobbyReadyChip) elLobbyReadyChip.textContent = `${r1 + r2}/4 ready`;
+        if (elLobbyReadyChip) elLobbyReadyChip.textContent = `${r1 + r2}/6 ready`;
       }
     });
   };
@@ -1548,10 +1596,14 @@ if (elBtnSlot1Take) { elBtnSlot1Take.onclick = () => { const name = elMpName.val
 if (elBtnSlot2Take) { elBtnSlot2Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 1, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 2" : "Failed"; if (ok && elBtnSlot2Ready) { elBtnSlot2Ready.disabled = false; elBtnSlot2Ready.textContent = "Ready"; (elBtnSlot2Ready as any).dataset.ready = "false"; } }); }; }
 if (elBtnSlot3Take) { elBtnSlot3Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 2, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 3" : "Failed"; if (ok && elBtnSlot3Ready) { elBtnSlot3Ready.disabled = false; elBtnSlot3Ready.textContent = "Ready"; (elBtnSlot3Ready as any).dataset.ready = "false"; } }); }; }
 if (elBtnSlot4Take) { elBtnSlot4Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 3, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 4" : "Failed"; if (ok && elBtnSlot4Ready) { elBtnSlot4Ready.disabled = false; elBtnSlot4Ready.textContent = "Ready"; (elBtnSlot4Ready as any).dataset.ready = "false"; } }); }; }
+if (elBtnSlot5Take) { elBtnSlot5Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 4, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 5" : "Failed"; if (ok && elBtnSlot5Ready) { elBtnSlot5Ready.disabled = false; elBtnSlot5Ready.textContent = "Ready"; (elBtnSlot5Ready as any).dataset.ready = "false"; } }); }; }
+if (elBtnSlot6Take) { elBtnSlot6Take.onclick = () => { const name = elMpName.value || "Player"; state.net?.takeSeatAt(name, 5, (ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Seated at 6" : "Failed"; if (ok && elBtnSlot6Ready) { elBtnSlot6Ready.disabled = false; elBtnSlot6Ready.textContent = "Ready"; (elBtnSlot6Ready as any).dataset.ready = "false"; } }); }; }
 if (elBtnSlot1Leave) { elBtnSlot1Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot1Take) elBtnSlot1Take.disabled = false; if (elBtnSlot1Ready) { elBtnSlot1Ready.disabled = true; elBtnSlot1Ready.textContent = "Ready"; (elBtnSlot1Ready as any).dataset.ready = "false"; } } }); }; }
 if (elBtnSlot2Leave) { elBtnSlot2Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot2Take) elBtnSlot2Take.disabled = false; if (elBtnSlot2Ready) { elBtnSlot2Ready.disabled = true; elBtnSlot2Ready.textContent = "Ready"; (elBtnSlot2Ready as any).dataset.ready = "false"; } } }); }; }
 if (elBtnSlot3Leave) { elBtnSlot3Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot3Take) elBtnSlot3Take.disabled = false; if (elBtnSlot3Ready) { elBtnSlot3Ready.disabled = true; elBtnSlot3Ready.textContent = "Ready"; (elBtnSlot3Ready as any).dataset.ready = "false"; } } }); }; }
 if (elBtnSlot4Leave) { elBtnSlot4Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot4Take) elBtnSlot4Take.disabled = false; if (elBtnSlot4Ready) { elBtnSlot4Ready.disabled = true; elBtnSlot4Ready.textContent = "Ready"; (elBtnSlot4Ready as any).dataset.ready = "false"; } } }); }; }
+if (elBtnSlot5Leave) { elBtnSlot5Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot5Take) elBtnSlot5Take.disabled = false; if (elBtnSlot5Ready) { elBtnSlot5Ready.disabled = true; elBtnSlot5Ready.textContent = "Ready"; (elBtnSlot5Ready as any).dataset.ready = "false"; } } }); }; }
+if (elBtnSlot6Leave) { elBtnSlot6Leave.onclick = () => { state.net?.leaveSeat((ok) => { if (elLobbyStatus) elLobbyStatus.textContent = ok ? "Left seat" : "Cannot leave during hand"; if (ok) { if (elBtnSlot6Take) elBtnSlot6Take.disabled = false; if (elBtnSlot6Ready) { elBtnSlot6Ready.disabled = true; elBtnSlot6Ready.textContent = "Ready"; (elBtnSlot6Ready as any).dataset.ready = "false"; } } }); }; }
 if (elBtnSlot1Ready) {
   elBtnSlot1Ready.onclick = () => {
     const cur = (elSlot1Ready as any)?.dataset?.ready === "true";
@@ -1610,6 +1662,36 @@ if (elBtnSlot4Ready) {
       return;
     }
     state.net?.setSeatReady(3, next, (ok3) => { if (!ok3 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 4"; });
+  };
+}
+if (elBtnSlot5Ready) {
+  elBtnSlot5Ready.onclick = () => {
+    const cur = (elSlot5Ready as any)?.dataset?.ready === "true";
+    const next = !cur;
+    const name = elMpName.value || "Player";
+    if (!state.net?.playerId) {
+      state.net?.takeSeatAt(name, 4, (ok) => {
+        if (!ok) { if (elLobbyStatus) elLobbyStatus.textContent = "Seat 5 occupied"; return; }
+        state.net?.setSeatReady(4, next, (ok2) => { if (!ok2 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 5"; });
+      });
+      return;
+    }
+    state.net?.setSeatReady(4, next, (ok3) => { if (!ok3 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 5"; });
+  };
+}
+if (elBtnSlot6Ready) {
+  elBtnSlot6Ready.onclick = () => {
+    const cur = (elSlot6Ready as any)?.dataset?.ready === "true";
+    const next = !cur;
+    const name = elMpName.value || "Player";
+    if (!state.net?.playerId) {
+      state.net?.takeSeatAt(name, 5, (ok) => {
+        if (!ok) { if (elLobbyStatus) elLobbyStatus.textContent = "Seat 6 occupied"; return; }
+        state.net?.setSeatReady(5, next, (ok2) => { if (!ok2 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 6"; });
+      });
+      return;
+    }
+    state.net?.setSeatReady(5, next, (ok3) => { if (!ok3 && elLobbyStatus) elLobbyStatus.textContent = "Cannot mark ready for seat 6"; });
   };
 }
 if (elBtnLobbyStart) { elBtnLobbyStart.onclick = () => { state.net?.startMatch(); }; }
@@ -1824,15 +1906,23 @@ const elSeat1 = document.getElementById("seat1") as HTMLDetailsElement;
 const elSeat2 = document.getElementById("seat2") as HTMLDetailsElement;
 const elSeat3 = document.getElementById("seat3") as HTMLDetailsElement;
 const elSeat4 = document.getElementById("seat4") as HTMLDetailsElement;
+const elSeat5 = document.getElementById("seat5") as HTMLDetailsElement;
+const elSeat6 = document.getElementById("seat6") as HTMLDetailsElement;
 const elSlot1SummaryStatus = document.getElementById("slot1-summary-status") as HTMLElement;
 const elSlot2SummaryStatus = document.getElementById("slot2-summary-status") as HTMLElement;
 const elSlot3SummaryStatus = document.getElementById("slot3-summary-status") as HTMLElement;
 const elSlot4SummaryStatus = document.getElementById("slot4-summary-status") as HTMLElement;
+const elSlot5SummaryStatus = document.getElementById("slot5-summary-status") as HTMLElement;
+const elSlot6SummaryStatus = document.getElementById("slot6-summary-status") as HTMLElement;
 const elSlot1SummaryReady = document.getElementById("slot1-summary-ready") as HTMLElement;
 const elSlot2SummaryReady = document.getElementById("slot2-summary-ready") as HTMLElement;
 const elSlot3SummaryReady = document.getElementById("slot3-summary-ready") as HTMLElement;
 const elSlot4SummaryReady = document.getElementById("slot4-summary-ready") as HTMLElement;
+const elSlot5SummaryReady = document.getElementById("slot5-summary-ready") as HTMLElement;
+const elSlot6SummaryReady = document.getElementById("slot6-summary-ready") as HTMLElement;
 const elSlot1SummaryYou = document.getElementById("slot1-summary-you") as HTMLElement;
 const elSlot2SummaryYou = document.getElementById("slot2-summary-you") as HTMLElement;
 const elSlot3SummaryYou = document.getElementById("slot3-summary-you") as HTMLElement;
 const elSlot4SummaryYou = document.getElementById("slot4-summary-you") as HTMLElement;
+const elSlot5SummaryYou = document.getElementById("slot5-summary-you") as HTMLElement;
+const elSlot6SummaryYou = document.getElementById("slot6-summary-you") as HTMLElement;

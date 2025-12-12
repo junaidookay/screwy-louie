@@ -47,6 +47,7 @@ const matchTimers = new Map<string, NodeJS.Timeout>();
 const disconnectTimers = new Map<string, NodeJS.Timeout>();
 const TURN_TIMEOUT_MS = 24 * 60 * 60 * 1000;
 const MATCH_TIMEOUT_MS = 30 * 60 * 1000;
+const MAX_PLAYERS = 6;
 const recentMatches: { id: string; ended: number; reason: string; players: { name: string; totalScore: number }[] }[] = [];
 const spectatorBySocket = new Map<string, { roomId: string; id: string }>();
 const playerBySocket = new Map<string, { roomId: string; id: string }>();
@@ -348,7 +349,7 @@ io.on("connection", (socket) => {
     const room = rooms.get(roomId);
     if (!room) return cb({ error: "not_found" });
     if (room.started && !room.handComplete) return cb({ error: "in_progress" });
-    if (!room.started && room.players.length >= 4) return cb({ error: "full" });
+    if (!room.started && room.players.length >= MAX_PLAYERS) return cb({ error: "full" });
     const player: PlayerSeat = { id: uuidv4(), name: name || "Player", hand: [], hasDrawn: false, didDiscard: false, laidGroups: [], laidRuns: [], laidComplete: false, totalScore: 0, ready: false };
     room.players.push(player);
     socket.join(room.id);
@@ -396,7 +397,7 @@ io.on("connection", (socket) => {
   socket.on("takeSeat", ({ roomId, name }, cb) => {
     const room = rooms.get(roomId);
     if (!room) return cb({ error: "not_found" });
-    if (!room.started && room.players.length >= 4) return cb({ error: "full" });
+    if (!room.started && room.players.length >= MAX_PLAYERS) return cb({ error: "full" });
     const sidInfo = spectatorBySocket.get(socket.id);
     const player: PlayerSeat = { id: uuidv4(), name: name || "Player", hand: [], hasDrawn: false, didDiscard: false, laidGroups: [], laidRuns: [], laidComplete: false, totalScore: 0, ready: false };
     room.players.push(player);
@@ -415,9 +416,9 @@ io.on("connection", (socket) => {
   socket.on("takeSeatAt", ({ roomId, name, toIndex }, cb) => {
     const room = rooms.get(roomId);
     if (!room) return cb({ error: "not_found" });
-    if (!room.started && room.players.length >= 4) return cb({ error: "full" });
+    if (!room.started && room.players.length >= MAX_PLAYERS) return cb({ error: "full" });
     const player: PlayerSeat = { id: uuidv4(), name: name || "Player", hand: [], hasDrawn: false, didDiscard: false, laidGroups: [], laidRuns: [], laidComplete: false, totalScore: 0, ready: false };
-    const dest = Math.max(0, Math.min(3, Number(toIndex) || 0));
+    const dest = Math.max(0, Math.min(MAX_PLAYERS - 1, Number(toIndex) || 0));
     room.players.splice(dest, 0, player);
     const sidInfo = spectatorBySocket.get(socket.id);
     if (sidInfo) {
@@ -538,7 +539,7 @@ io.on("connection", (socket) => {
   socket.on("setSeatReady", ({ roomId, seatIndex, ready }, cb) => {
     const room = rooms.get(roomId);
     if (!room) return cb && cb({ error: "not_found" });
-    const idx = Math.max(0, Math.min(3, Number(seatIndex) || 0));
+    const idx = Math.max(0, Math.min(MAX_PLAYERS - 1, Number(seatIndex) || 0));
     const occupant = room.players[idx];
     if (!occupant) return cb && cb({ error: "empty" });
     const info = playerBySocket.get(socket.id);
