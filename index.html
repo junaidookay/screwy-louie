@@ -110,12 +110,22 @@
       #btn-toggle-chat { overflow: visible !important; }
       #chat-unread { position: absolute; top: -6px; right: -6px; z-index: 20; box-shadow: 0 0 0 2px #fff; }
       .dark #chat-unread { box-shadow: 0 0 0 2px #0f172a; }
+      #table-bg { background: radial-gradient(circle at 30% 30%, #2f8f67 0, #0b3b2a 62%); }
+      .dark #table-bg { background: radial-gradient(circle at 30% 30%, #1f2937 0, #020617 60%); }
+      .player-seat .seat-info { margin-top: 6px; padding: 4px 8px; border-radius: 10px; background: rgba(2, 6, 23, 0.55); border: 1px solid rgba(255,255,255,0.16); max-width: 100%; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+      :root:not(.dark) .player-seat .seat-info { background: rgba(0,0,0,0.55); }
+      .dark .player-seat .seat-info { border-color: rgba(148,163,184,0.22); background: rgba(2, 6, 23, 0.50); }
+      .hc .player-seat .seat-info { background: rgba(0,0,0,0.75); border-color: rgba(255,255,255,0.32); }
+      .player-seat .seat-name { color: #fff; font-weight: 650; font-size: 13px; line-height: 1.15; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.65); }
+      .player-seat .seat-meta { margin-top: 2px; color: rgba(226,232,240,0.92); font-size: 11px; line-height: 1.15; text-align: center; text-shadow: 0 1px 2px rgba(0,0,0,0.55); }
       #table-area.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.10), rgba(43,140,238,0.06)); border-color: #2b8cee; box-shadow: 0 0 0 2px rgba(43,140,238,0.25), 0 10px 24px rgba(43,140,238,0.20); }
       .dark #table-area.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.12), rgba(43,140,238,0.08)); box-shadow: 0 0 0 2px rgba(43,140,238,0.35), 0 10px 24px rgba(43,140,238,0.28); }
       .selected-frame { position: relative; padding: 2px; border-radius: 12px; background: conic-gradient(from 90deg at 50% 50%, #2b8cee 0%, #a78bfa 50%, #2b8cee 100%); }
       .selected-frame > * { border-radius: 10px; }
       .selected-card { position: relative; }
       .selected-card::before { content: ""; position: absolute; inset: -2px; border-radius: 12px; padding: 2px; background: conic-gradient(from 90deg at 50% 50%, #2b8cee 0%, #a78bfa 50%, #2b8cee 100%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+      .selected-card { box-shadow: 0 0 0 2px rgba(43,140,238,0.35), 0 10px 24px rgba(43,140,238,0.18); }
+      .dark .selected-card { box-shadow: 0 0 0 2px rgba(43,140,238,0.45), 0 10px 24px rgba(43,140,238,0.22); }
       .player.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.12), rgba(43,140,238,0.06)); border-color: #2b8cee !important; box-shadow: 0 0 0 2px rgba(43,140,238,0.25), 0 10px 24px rgba(43,140,238,0.18); }
       .dark .player.my-turn { background: linear-gradient(180deg, rgba(43,140,238,0.16), rgba(43,140,238,0.08)); box-shadow: 0 0 0 2px rgba(43,140,238,0.35), 0 10px 24px rgba(43,140,238,0.28); }
       .stat-chip { display: inline-flex; align-items: center; gap: 8px; border-radius: 10px; padding: 2px 8px; background-color: #f3f4f6; color: #111418; border: 1px solid #e5e7eb; }
@@ -124,8 +134,20 @@
       .player.my-turn .stat-chip { border-color: #2b8cee; box-shadow: 0 0 0 1px rgba(43,140,238,0.25) inset; }
       .stat-chip .material-symbols-outlined { font-size: 14px; line-height: 1; }
       .name-block { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+      @keyframes turnHighlight {
+        0% { transform: translateY(0); box-shadow: 0 0 0 0 rgba(43,140,238,0.4); }
+        50% { transform: translateY(-2px); box-shadow: 0 0 0 6px rgba(43,140,238,0); }
+        100% { transform: translateY(0); box-shadow: 0 0 0 0 rgba(43,140,238,0); }
+      }
+      .turn-highlight {
+        animation: turnHighlight 1s ease-in-out infinite;
+        border-color: #2b8cee;
+      }
       /* Mobile polish */
       @media (max-width: 480px) {
+        .player-seat .seat-info { padding: 3px 6px; border-radius: 9px; }
+        .player-seat .seat-name { font-size: 12px; }
+        .player-seat .seat-meta { font-size: 10px; }
         .lobby-seat-actions { flex-direction: column; gap: 6px; }
         .lobby-seat-actions > button { width: 100% !important; height: 2rem !important; padding: 0 0.5rem !important; font-size: 0.85rem; }
         #btn-slot1-take, #btn-slot1-leave, #btn-slot1-ready,
@@ -156,13 +178,6 @@
         .name-block .meta-line { display: inline-flex; align-items: center; gap: 10px; margin-left: auto; }
         .selected-frame { padding: 0 !important; background: transparent !important; }
       }
-        #hit-controls { flex-wrap: nowrap; align-items: center; gap: 8px; }
-        #sel-hit-player, #sel-hit-type, #sel-hit-index { min-width: 120px; font-size: 0.85rem; height: 3rem; }
-        #btn-hit { width: auto; max-width: none; font-size: 0.9rem; height: 3rem; }
-        @media (max-width: 640px) {
-          #hit-controls { flex-wrap: wrap; justify-content: center; }
-          #btn-hit { width: 100%; max-width: 280px; }
-        }
         .lobby-seat { overflow: hidden; }
         .lobby-seat > summary { list-style: none; }
         .lobby-seat > summary::-webkit-details-marker { display: none; }
@@ -426,77 +441,92 @@
               <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDIPlg1Wh6yJaO8vIesVixTkP4yEDFeZmK2_rcFrwOBYfw-Eb-iHJw94eGv7RFWNK2txzWBu-GMPRxRCSQkLFqeLL7SYDIfmJhGV9-sShYNSQSZfKFMRTWyEHmJvRkug6GbuDATI6paMpEPb6nqAjY5Kgc-2MNidljfah0sNf-TvvnDEdGYAJWfKoZq-nAdAS0teD8BIECWq5sZJVmlWZh-wezStJCgBGgM5AFNYQ5kVhalrwvX6A7e-6HeHOUKFcFmGSuArSpemt66');"></div>
             </div>
           </header>
-          <main class="flex-1 flex flex-col p-4 md:p-6 lg:p-8 pb-24">
+          <main class="flex-1 flex flex-col py-4 px-0 sm:px-4 md:p-6 lg:p-8 pb-24">
             <div class="flex justify-center w-full">
               <div class="w-full max-w-7xl flex flex-col items-center">
                 <h2 id="status" class="text-[#111418] dark:text-gray-100 tracking-light text-2xl sm:text-[28px] font-bold leading-tight text-center pb-2 pt-2">Your Turn!</h2>
                 <p class="text-[#617589] dark:text-gray-400 text-sm font-normal leading-normal pb-3 text-center">Select cards from your hand to make a play.</p>
                 
-                <div class="w-full max-w-7xl mx-auto px-4">
-                  <div id="players-panel" class="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-sm p-4 mb-4">
-                    <div id="players" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+                <div class="w-full max-w-7xl mx-auto px-0 sm:px-4">
+                    <div id="players-panel" class="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-800 shadow-sm p-2 sm:p-4 mb-4">
+                    <div class="w-full flex justify-center">
+                      <div id="table-wrapper" class="relative w-full max-w-3xl aspect-[3/2.2] sm:aspect-[3/1.8] md:aspect-[3/1.4]">
+                        <div id="table-bg" class="absolute inset-0 rounded-full border border-cyan-400/40 shadow-inner"></div>
+                        <div id="players" class="absolute inset-0"></div>
+                      </div>
+                    </div>
                     <div class="mt-3 flex items-center justify-between text-xs">
                       <div id="spectators" class="text-gray-500 dark:text-gray-400">None</div>
                       <div id="event-log" class="hidden"></div>
                     </div>
                   </div>
-                </div>
-                <div class="flex items-center gap-6 mb-2">
-                  <div class="flex flex-col items-center">
-                    <p class="text-xs text-gray-500">Draw Pile</p>
-                    <div id="draw-back" class="relative w-24 bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md"></div>
-                    <p id="draw-size" class="mt-2 text-sm font-semibold"></p>
-                    <button id="btn-draw" class="mt-2 h-10 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm">Draw</button>
+                  <div class="flex flex-col items-center gap-4">
+                    <div class="w-full grid grid-cols-2 md:grid-cols-[1fr_minmax(280px,420px)_1fr_210px] gap-x-4 md:gap-x-10 gap-y-3 items-start">
+                      <div class="col-span-2 md:col-start-2 md:col-span-1 flex justify-center">
+                        <div class="w-full max-w-[420px] grid grid-cols-[1fr_1px_1fr] items-start">
+                          <div class="flex flex-col items-center pr-3 md:pr-6">
+                            <p class="text-xs text-gray-500 mb-1">Draw Pile</p>
+                            <div id="draw-back" class="relative w-24 bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md mb-2"></div>
+                            <p id="draw-size" class="text-sm font-semibold mb-2">93 cards</p>
+                            <button id="btn-draw" class="h-10 w-full rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm">
+                              Draw
+                            </button>
+                          </div>
+                          <div class="w-px self-stretch bg-gray-200/70 dark:bg-gray-700/70"></div>
+                          <div class="flex flex-col items-center pl-3 md:pl-6">
+                            <p class="text-xs text-gray-500 mb-1">Discard Top</p>
+                            <div id="discard-top" class="relative w-24 bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md mb-2"></div>
+                            <button id="btn-draw-discard" class="h-10 w-full rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm">
+                              Draw Discard
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-start-1 row-start-2 md:col-start-2 md:row-start-2 w-full flex flex-col items-stretch gap-2">
+                        <button id="btn-give" class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <span class="material-symbols-outlined mr-2 text-base">volunteer_activism</span>
+                          Give Discard
+                        </button>
+                        <select id="sel-hit-player" class="h-9 w-full rounded-lg border px-3 text-sm"></select>
+                      </div>
+
+                      <div class="col-start-2 row-start-2 md:col-start-4 md:row-start-1 w-full flex flex-col items-stretch gap-2 md:w-[210px] md:ml-auto">
+                        <button id="btn-lay-group" class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <span class="material-symbols-outlined mr-2 text-base">layers</span>
+                          Lay Group
+                        </button>
+                        <button id="btn-lay-run" class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <span class="material-symbols-outlined mr-2 text-base">linear_scale</span>
+                          Lay Run
+                        </button>
+                        <button id="btn-reset" class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <span class="material-symbols-outlined mr-2 text-base">refresh</span>
+                          Reset Selection
+                        </button>
+                        <button id="btn-discard" class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <span class="material-symbols-outlined mr-2 text-base">delete</span>
+                          Discard Selected
+                        </button>
+                        <button id="btn-reset-round" class="flex items-center justify-center h-9 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 text-sm font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+                          <span class="material-symbols-outlined mr-2 text-base">restart_alt</span>
+                          Reset Round
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                  <div class="w-px h-16 bg-gray-200 dark:bg-gray-700"></div>
-                  <div class="flex flex-col items-center">
-                    <p class="text-xs text-gray-500">Discard Top</p>
-                    <div id="discard-top" class="w-24 bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md"></div>
-                    <button id="btn-draw-discard" class="mt-2 h-10 px-4 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 shadow-sm">Draw Discard</button>
+                  <div class="mt-6">
+                    <div id="table-area" class="w-full bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg my-0 flex-1 min-h-[200px] flex items-center justify-center p-6">
+                      <p class="text-gray-400 dark:text-gray-500">Main Play Area</p>
+                    </div>
                   </div>
-                </div>
-                <div id="table-area" class="w-full bg-white dark:bg-background-dark border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg my-6 flex-1 min-h-[200px] flex items-center justify-center p-6">
-                  <p class="text-gray-400 dark:text-gray-500">Main Play Area</p>
                 </div>
               </div>
             </div>
             <div class="sticky bottom-0 left-0 right-0 pt-4 border-t border-gray-200 dark:border-gray-800 bg-background-light/95 dark:bg-background-dark/90 backdrop-blur z-10">
               <div class="w-full max-w-7xl mx-auto px-4">
-                <div id="hand-grid" class="grid grid-cols-[repeat(auto-fit,110px)] sm:grid-cols-[repeat(auto-fit,120px)] justify-center gap-3 p-4 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700/50"></div>
-                <div class="flex flex-wrap items-center justify-center gap-3 pt-6 pb-2">
-                  <button id="btn-lay-group" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                    <span class="material-symbols-outlined mr-2">layers</span>
-                    Lay Group
-                  </button>
-                  <button id="btn-lay-run" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                    <span class="material-symbols-outlined mr-2">linear_scale</span>
-                    Lay Run
-                  </button>
-                  <button id="btn-reset" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                    <span class="material-symbols-outlined mr-2">refresh</span>
-                    Reset Selection
-                  </button>
-                  <div id="hit-controls" class="flex items-center gap-2">
-                    <select id="sel-hit-player" class="h-12 rounded-lg border px-3"></select>
-                    <select id="sel-hit-type" class="h-12 rounded-lg border px-3">
-                      <option value="group">Group</option>
-                      <option value="run">Run</option>
-                    </select>
-                    <select id="sel-hit-index" class="h-12 rounded-lg border px-3"></select>
-                    <button id="btn-hit" class="flex items-center justify-center h-12 px-6 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                      <span class="material-symbols-outlined mr-2">add_circle</span>
-                      Hit Selected
-                    </button>
-                  </div>
-                  <div class="w-px h-8 bg-gray-300 dark:bg-gray-600 mx-3 hidden sm:block"></div>
-                  <button id="btn-discard" class="flex items-center justify-center h-12 px-8 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                    <span class="material-symbols-outlined mr-2">delete</span>
-                    Discard Selected
-                  </button>
-                  <button id="btn-give" class="flex items-center justify-center h-12 px-8 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 font-semibold shadow-sm hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                    <span class="material-symbols-outlined mr-2">volunteer_activism</span>
-                    Give Discard
-                  </button>
+                <div id="hand-grid" class="flex flex-wrap justify-center gap-4 p-3 bg-white/90 dark:bg-[#020617] rounded-xl border border-gray-200/70 dark:border-gray-700/80 shadow-sm"></div>
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-4 pb-2">
                   <button id="btn-end" class="flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white font-bold shadow-lg hover:bg-primary/90 transition-colors">
                     End Turn
                   </button>

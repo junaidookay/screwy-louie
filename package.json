@@ -4,11 +4,11 @@
   "private": true,
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && vite build --outDir dist/client",
     "simulate": "node dist/sim/simulate.js",
     "dev": "vite",
     "serve": "node dist/server/index.js",
-    "dev:all": "npm run build && powershell -NoProfile -ExecutionPolicy Bypass -Command \"Start-Process node -ArgumentList 'dist/server/index.js'; npm run dev\""
+    "dev:all": "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$ErrorActionPreference='Stop'; npm run build; $oldPid = (Get-NetTCPConnection -State Listen -LocalPort 3001 -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess); if ($oldPid) { Stop-Process -Id $oldPid -Force -ErrorAction SilentlyContinue }; $server = Start-Process node -ArgumentList 'dist/server/index.js' -NoNewWindow -PassThru; try { npm run dev } finally { if ($server -and (Get-Process -Id $server.Id -ErrorAction SilentlyContinue)) { Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue } }\""
   },
   "devDependencies": {
     "@types/node": "^24.10.1",

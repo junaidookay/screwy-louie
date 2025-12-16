@@ -10,6 +10,8 @@ export type ServerRoomState = {
   discardPile: Card[];
   started: boolean;
   handComplete: boolean;
+  matchOver: boolean;
+  matchReason: string | null;
   lastScores: { playerId: string; name: string; hand: number; total: number }[];
   turnDeadline: number | null;
   spectators: { id: string; name: string }[];
@@ -37,7 +39,9 @@ export class NetClient {
   onSpectatorJoin?: (d: { name: string }) => void;
 
   connect(): void {
-    const url = location.hostname !== "localhost" ? location.origin : "http://localhost:3001";
+    const url = location.port && location.port !== "3001"
+      ? `${location.protocol}//${location.hostname}:3001`
+      : location.origin;
     this.socket = io(url, { transports: ["websocket", "polling"], reconnectionAttempts: 10, reconnectionDelay: 500 });
     this.socket.on("state", (s: ServerRoomState) => {
       if (this.onState) this.onState(s);
@@ -78,14 +82,26 @@ export class NetClient {
     this.socket?.emit("startMatch", { roomId: this.roomId }, () => {});
   }
 
+  restartMatch(cb?: (ok: boolean, error?: string) => void): void {
+    if (!this.roomId) return cb && cb(false, "not_in_room");
+    this.socket?.emit("restartMatch", { roomId: this.roomId }, (res: any) => {
+      if (cb) {
+        if (res && res.ok) cb(true);
+        else cb(false, res?.error);
+      }
+    });
+  }
+
   draw(from: "pile" | "discard"): void {
     if (!this.roomId || !this.playerId) return;
     this.socket?.emit("draw", { roomId: this.roomId, playerId: this.playerId, from }, () => {});
   }
 
-  discard(index: number): void {
-    if (!this.roomId || !this.playerId) return;
-    this.socket?.emit("discard", { roomId: this.roomId, playerId: this.playerId, index }, () => {});
+  discard(index: number, cb?: (ok: boolean) => void): void {
+    if (!this.roomId || !this.playerId) return cb && cb(false);
+    this.socket?.emit("discard", { roomId: this.roomId, playerId: this.playerId, index }, (res: any) => {
+      if (cb) cb(!!(res && res.ok));
+    });
   }
 
   endTurn(): void {
@@ -96,6 +112,46 @@ export class NetClient {
   giveDiscardTo(targetId: string): void {
     if (!this.roomId || !this.playerId) return;
     this.socket?.emit("giveDiscardTo", { roomId: this.roomId, playerId: this.playerId, targetId }, () => {});
+  }
+
+  resetHand(cb?: (ok: boolean, error?: string) => void): void {
+    if (!this.roomId) return cb && cb(false, "not_in_room");
+    if (!this.socket || !this.socket.connected) return cb && cb(false, "disconnected");
+    let settled = false;
+    const t = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cb && cb(false, "timeout");
+    }, 1200);
+    this.socket.emit("resetHand", { roomId: this.roomId }, (res: any) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(t);
+      if (cb) {
+        if (res && res.ok) cb(true);
+        else cb(false, res?.error);
+      }
+    });
+  }
+
+  finishHand(cb?: (ok: boolean, error?: string) => void): void {
+    if (!this.roomId) return cb && cb(false, "not_in_room");
+    if (!this.socket || !this.socket.connected) return cb && cb(false, "disconnected");
+    let settled = false;
+    const t = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      cb && cb(false, "timeout");
+    }, 1200);
+    this.socket.emit("finishHand", { roomId: this.roomId }, (res: any) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(t);
+      if (cb) {
+        if (res && res.ok) cb(true);
+        else cb(false, res?.error);
+      }
+    });
   }
 
   layGroup(indices: number[], cb?: (ok: boolean, err?: string) => void): void {

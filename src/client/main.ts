@@ -11,6 +11,7 @@ type State = {
   handNumber: number;
   players: Player[];
   current: number;
+  startingIndex: number;
   drawPile: Deck;
   discardPile: Card[];
   selectedIndices: number[];
@@ -47,18 +48,13 @@ function rankLabel(r: Card["rank"]): string {
   return String(r);
 }
 
-function cardImagePath(c: Card): string {
-  if (c.rank === "Joker") return "Card Game Assets/Cards/Joker of Spades Card.png";
-  if (!c.suit) return "";
-  const rl = rankLabel(c.rank);
-  return `Card Game Assets/Cards/${rl} of ${c.suit} Card.png`;
-}
-
 function cardImageCandidates(c: Card): string[] {
   if (c.rank === "Joker") return [
-    "Card Game Assets/Cards/Joker of Spades Card.png",
     "Card Game Assets/Cards/Joker Card.png",
     "Card Game Assets/Cards/Joker.png",
+    "Card Game Assets/Cards/Joker of Spades Card.png",
+    "Card Game Assets/Cards/Old/Generated Image November 24, 2025 - 3_27AM (6).png",
+    "Card Game Assets/Cards/Branded Card Back.png",
   ];
   if (!c.suit) return [];
   const rl = rankLabel(c.rank);
@@ -150,6 +146,7 @@ function createState(): State {
     handNumber,
     players,
     current: 0,
+    startingIndex: 0,
     drawPile: deck,
     discardPile: [discardFirst],
     selectedIndices: [],
@@ -180,11 +177,9 @@ const elBtnGive = document.getElementById("btn-give") as HTMLButtonElement;
 const elBtnLayGroup = document.getElementById("btn-lay-group") as HTMLButtonElement;
 const elBtnLayRun = document.getElementById("btn-lay-run") as HTMLButtonElement;
 const elBtnReset = document.getElementById("btn-reset") as HTMLButtonElement;
+const elBtnResetRound = document.getElementById("btn-reset-round") as HTMLButtonElement;
 const elStatus = document.getElementById("status") as HTMLElement;
 const elHitPlayer = document.getElementById("sel-hit-player") as HTMLSelectElement;
-const elHitType = document.getElementById("sel-hit-type") as HTMLSelectElement;
-const elHitIndex = document.getElementById("sel-hit-index") as HTMLSelectElement;
-const elBtnHit = document.getElementById("btn-hit") as HTMLButtonElement;
 const elScoreboard = document.getElementById("scoreboard") as HTMLElement;
 const elScores = document.getElementById("scores") as HTMLElement;
 const elBtnNextHand = document.getElementById("btn-next-hand") as HTMLButtonElement;
@@ -317,7 +312,7 @@ function showToast(text: string): void {
     toastEl.style.top = "16px";
     toastEl.style.left = "50%";
     toastEl.style.transform = "translateX(-50%)";
-    toastEl.style.background = "#111829";
+    toastEl.style.background = "#b91c1c";
     toastEl.style.color = "#fff";
     toastEl.style.padding = "10px 14px";
     toastEl.style.borderRadius = "10px";
@@ -333,7 +328,14 @@ function showToast(text: string): void {
 
 let hoverPreviewEl: HTMLElement | null = null;
 let hoverHideTimer: any = null;
-function ensureHoverPreview(): HTMLElement {
+function hoverPreviewAllowed(): boolean {
+  if (typeof window === "undefined") return false;
+  const mq = window.matchMedia ? window.matchMedia("(hover: hover) and (pointer: fine)") : null;
+  return !!(mq && mq.matches);
+}
+
+function ensureHoverPreview(): HTMLElement | null {
+  if (!hoverPreviewAllowed()) return null;
   if (!hoverPreviewEl) {
     const el = document.createElement("div");
     el.id = "hover-preview";
@@ -357,6 +359,7 @@ function ensureHoverPreview(): HTMLElement {
 
 function positionHoverPreview(x: number, y: number): void {
   const el = ensureHoverPreview();
+  if (!el) return;
   const pad = 16;
   const w = 96;
   const h = 128;
@@ -370,6 +373,7 @@ function positionHoverPreview(x: number, y: number): void {
 
 function showHoverPreview(c: Card, x: number, y: number): void {
   const el = ensureHoverPreview();
+  if (!el) return;
   if (hoverHideTimer) { try { clearTimeout(hoverHideTimer); } catch {} hoverHideTimer = null; }
   setBackgroundCard(el, c);
   positionHoverPreview(x, y);
@@ -379,6 +383,7 @@ function showHoverPreview(c: Card, x: number, y: number): void {
 
 function moveHoverPreview(x: number, y: number): void {
   const el = ensureHoverPreview();
+  if (!el) return;
   positionHoverPreview(x, y);
 }
 
@@ -474,46 +479,78 @@ function render(): void {
     setBackgroundCard(discEl, top);
   }
   elPlayers.innerHTML = "";
-  for (const p of state.players) {
+  const isSmallLayout = (window.innerWidth || 0) <= 420;
+  const seatPositions = isSmallLayout
+    ? [
+        { top: 14, left: 50 },
+        { top: 32, left: 84 },
+        { top: 68, left: 84 },
+        { top: 86, left: 50 },
+        { top: 68, left: 16 },
+        { top: 32, left: 16 },
+      ]
+    : [
+        { top: 8, left: 50 },
+        { top: 26, left: 88 },
+        { top: 74, left: 88 },
+        { top: 92, left: 50 },
+        { top: 74, left: 12 },
+        { top: 26, left: 12 },
+      ];
+  state.players.forEach((p, idx) => {
+    const pos = seatPositions[idx] || { top: 50, left: 50 };
     const container = document.createElement("div");
-    container.className = "player flex items-center justify-between rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 shadow-sm";
-    const title = document.createElement("div");
-    title.className = "player-header flex items-center gap-2";
-    const left = document.createElement("div");
-    left.className = "name-block";
-    const headerLine = document.createElement("div"); headerLine.className = "header-line inline-flex items-center gap-2";
-    const metaLine = document.createElement("div"); metaLine.className = "meta-line inline-flex items-center gap-2 flex-wrap";
-    const laidInfo = `G${p.laidGroups.length} R${p.laidRuns.length} • Total ${p.totalScore}`;
-    const sid = state.netMode && p.serverId ? ` (${p.serverId.slice(0, 6)})` : "";
-    const nameSpan = document.createElement("span"); nameSpan.className = "font-semibold"; nameSpan.textContent = `${p.name}${sid}`;
-    headerLine.appendChild(nameSpan);
+    container.className = "player-seat absolute flex flex-col items-center text-xs";
+    container.style.left = `${pos.left}%`;
+    container.style.top = `${pos.top}%`;
+    container.style.transform = "translate(-50%, -50%)";
+    container.style.minWidth = isSmallLayout ? "72px" : "96px";
+    container.style.maxWidth = isSmallLayout ? "92px" : "150px";
+    container.style.pointerEvents = "none";
+    container.style.zIndex = "10";
+    const avatar = document.createElement("div");
+    avatar.className = "rounded-full bg-center bg-cover bg-no-repeat border-2 border-cyan-400 shadow-md";
+    avatar.style.width = isSmallLayout ? "40px" : "48px";
+    avatar.style.height = isSmallLayout ? "40px" : "48px";
+    avatar.style.backgroundImage = "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDIPlg1Wh6yJaO8vIesVixTkP4yEDFeZmK2_rcFrwOBYfw-Eb-iHJw94eGv7RFWNK2txzWBu-GMPRxRCSQkLFqeLL7SYDIfmJhGV9-sShYNSQSZfKFMRTWyEHmJvRkug6GbuDATI6paMpEPb6nqAjY5Kgc-2MNidljfah0sNf-TvvnDEdGYAJWfKoZq-nAdAS0teD8BIECWq5sZJVmlWZh-wezStJCgBGgM5AFNYQ5kVhalrwvX6A7e-6HeHOUKFcFmGSuArSpemt66')";
     if (state.current === p.id) {
-      const badge = document.createElement("span");
-      badge.className = "ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 bg-primary text-white text-xs font-bold";
-      badge.innerHTML = `<span class='material-symbols-outlined' style='font-size:14px'>play_arrow</span><span>Turn</span>`;
-      headerLine.appendChild(badge);
+      avatar.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.9)";
       container.classList.add("my-turn");
     }
-    const chip = document.createElement("span");
-    chip.className = "stat-chip";
-    chip.innerHTML = `
-      <span class='material-symbols-outlined chip-icon'>groups</span><span>G${p.laidGroups.length}</span>
-      <span class='chip-sep'>•</span>
-      <span class='material-symbols-outlined chip-icon'>alt_route</span><span>R${p.laidRuns.length}</span>
-      <span class='chip-sep'>•</span>
-      <span class='material-symbols-outlined chip-icon'>scoreboard</span><span>Total ${p.totalScore}</span>
-    `;
-    metaLine.appendChild(chip);
-    const right = document.createElement("div"); right.className = "player-cards text-sm inline-flex items-center gap-2";
-    right.innerHTML = `<span class='material-symbols-outlined' style='font-size:16px'>style</span><span>Cards: ${p.hand.length}</span>`;
-    metaLine.appendChild(right);
-    left.appendChild(headerLine);
-    left.appendChild(metaLine);
-    title.appendChild(left);
-    container.appendChild(title);
+    const info = document.createElement("div");
+    info.className = "seat-info";
+    const nameSpan = document.createElement("div");
+    nameSpan.className = "seat-name";
+    const sid = state.netMode && p.serverId ? ` (${p.serverId.slice(0, 6)})` : "";
+    nameSpan.textContent = `${p.name}${sid}`;
+    nameSpan.style.textAlign = "center";
+    nameSpan.style.wordBreak = "break-word";
+    const meta = document.createElement("div");
+    meta.className = "seat-meta";
+    const laidInfo = `G${p.laidGroups.length} R${p.laidRuns.length}`;
+    if (isSmallLayout) {
+      meta.textContent = `T ${p.totalScore} • C ${p.hand.length} • ${laidInfo}`;
+    } else {
+      const cardInfo = `Cards: ${p.hand.length}`;
+      meta.textContent = `${laidInfo} • Total ${p.totalScore} • ${cardInfo}`;
+    }
+    meta.style.textAlign = "center";
+    meta.style.wordBreak = "break-word";
+    if (pos.top > 50) {
+      container.style.flexDirection = "column-reverse";
+      info.style.marginTop = "0";
+      info.style.marginBottom = "6px";
+    } else {
+      info.style.marginTop = "6px";
+      info.style.marginBottom = "0";
+    }
+    container.appendChild(avatar);
+    info.appendChild(nameSpan);
+    info.appendChild(meta);
+    container.appendChild(info);
     elPlayers.appendChild(container);
-  }
-  if (state.netMode && state.matchComplete && Array.isArray(state.lastScores) && (state as any).scorePopShownHand !== state.handNumber) {
+  });
+  if (state.netMode && Array.isArray(state.lastScores) && state.lastScores.length > 0 && (state as any).scorePopShownHand !== state.handNumber) {
     (state as any).scorePopShownHand = state.handNumber;
     state.lastScores.forEach((s) => {
       const idx = state.players.findIndex(pp => pp.serverId === s.playerId);
@@ -531,11 +568,19 @@ function render(): void {
   const isSpectator = state.netMode && !myId;
   const myIdx = !isSpectator && myId ? state.players.findIndex(pp => pp.serverId === myId) : -1;
   const my = myIdx >= 0 ? state.players[myIdx] : state.players[state.current];
-  const myTurn = myIdx >= 0 && state.current === myIdx;
-  if (elBtnDraw) elBtnDraw.disabled = isSpectator || !myTurn || my.hasDrawn;
-  if (elBtnDrawDiscard) elBtnDrawDiscard.disabled = isSpectator || !myTurn || my.hasDrawn || state.discardPile.length === 0;
+  const myTurn = state.netMode ? (myIdx >= 0 && state.current === myIdx) : true;
+  const canDrawFromPile = !isSpectator && myTurn && !my.hasDrawn;
+  const canDrawFromDiscard = !isSpectator && myTurn && !my.hasDrawn && state.discardPile.length > 0;
+  if (elBtnDraw) {
+    elBtnDraw.disabled = !canDrawFromPile;
+    elBtnDraw.classList.toggle("turn-highlight", canDrawFromPile);
+  }
+  if (elBtnDrawDiscard) {
+    elBtnDrawDiscard.disabled = !canDrawFromDiscard;
+    elBtnDrawDiscard.classList.toggle("turn-highlight", canDrawFromDiscard);
+  }
   if (elBtnDiscard) elBtnDiscard.disabled = false;
-  if (elBtnEnd) elBtnEnd.disabled = false;
+  if (elBtnEnd) elBtnEnd.disabled = isSpectator || !myTurn;
   const curName = state.players[state.current]?.name || "Player";
   const reqParts = getPhaseRequirementsForHand(state.handNumber).map(r => r.type === "group" ? `${r.count} Group${r.count>1?"s":""}` : `${r.count} Run${r.count>1?"s":""}`);
   elStatus.textContent = `Round ${state.handNumber}: ${reqParts.join(" + ")} • Turn: ${curName}`;
@@ -548,37 +593,34 @@ function render(): void {
       elSelTarget.appendChild(opt);
     });
   }
-  if (elBtnGive) elBtnGive.disabled = isSpectator || state.discardPile.length === 0;
-  elHitPlayer.innerHTML = "";
-  state.players.forEach(p => {
-    const opt = document.createElement("option");
-    opt.value = state.netMode && p.serverId ? String(p.serverId) : String(p.id);
-    opt.textContent = p.name;
-    elHitPlayer.appendChild(opt);
-  });
-  elHitIndex.innerHTML = "";
-  const targetVal = elHitPlayer.value || "0";
-  const target = state.netMode ? state.players.find(p => p.serverId === targetVal) || state.players[0] : state.players.find(p => p.id === Number(targetVal)) || state.players[0];
-  const type = elHitType.value;
-  const count = type === "group" ? target.laidGroups.length : target.laidRuns.length;
-  if (count === 0) {
-    const opt = document.createElement("option");
-    opt.value = "";
-    opt.textContent = "None";
-    opt.disabled = true;
-    opt.selected = true;
-    elHitIndex.appendChild(opt);
-    elHitIndex.disabled = true;
-  } else {
-    elHitIndex.disabled = false;
-    for (let i = 0; i < count; i++) {
+  const canGive = !isSpectator && state.discardPile.length > 0 && state.players.length > 1;
+  if (elBtnGive) elBtnGive.disabled = !canGive;
+  if (elHitPlayer) {
+    const prevVal = String(elHitPlayer.value || "");
+    elHitPlayer.innerHTML = "";
+    const myServerId = state.netMode ? myId : null;
+    const myLocalId = state.netMode ? null : my.id;
+    state.players.forEach(p => {
+      const isSelf = state.netMode ? (myServerId && p.serverId === myServerId) : p.id === myLocalId;
+      if (isSelf) return;
       const opt = document.createElement("option");
-      opt.value = String(i);
-      opt.textContent = String(i + 1);
-      elHitIndex.appendChild(opt);
+      opt.value = state.netMode && p.serverId ? String(p.serverId) : String(p.id);
+      opt.textContent = p.name;
+      elHitPlayer.appendChild(opt);
+    });
+    if (elHitPlayer.options.length === 0) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "No target";
+      elHitPlayer.appendChild(opt);
+      elHitPlayer.disabled = true;
+    } else {
+      elHitPlayer.disabled = false;
+    }
+    if (prevVal && Array.from(elHitPlayer.options).some(o => o.value === prevVal)) {
+      elHitPlayer.value = prevVal;
     }
   }
-  elBtnHit.disabled = false;
   elScoreboard.style.display = state.matchComplete || state.netMode && state.lastScores.length > 0 ? "block" : "none";
   if (state.netMode && state.lastScores.length > 0) {
     elScores.innerHTML = state.lastScores.map(s => {
@@ -609,7 +651,17 @@ function render(): void {
     p.hand.forEach((c, idx) => {
       const outer = document.createElement("div");
       const isSel = state.current === p.id && state.selectedIndices.includes(idx);
-      outer.className = "flex flex-col gap-3" + (isSel ? " selected-frame transform -translate-y-4" : "");
+      outer.className = "flex flex-col gap-3 w-[110px] sm:w-[120px]" + (isSel ? " selected-frame transform -translate-y-4" : "");
+      if (isSel) {
+        const dots = document.createElement("div");
+        dots.className = "flex justify-center gap-1 pt-1";
+        for (let i = 0; i < 3; i++) {
+          const dot = document.createElement("div");
+          dot.className = "w-2 h-2 rounded-full bg-green-400 shadow-sm";
+          dots.appendChild(dot);
+        }
+        outer.appendChild(dots);
+      }
       const inner = document.createElement("div");
       inner.className = "w-full bg-center bg-no-repeat aspect-[3/4] bg-cover rounded-lg shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all" + (isSel ? " selected-card" : "");
       setBackgroundCard(inner, c);
@@ -762,10 +814,19 @@ function render(): void {
   const myIdSel = (state.net as NetClient)?.playerId || null;
   const isSpectatorSel = state.netMode && !myIdSel;
   const myIdxSel = !isSpectatorSel && myIdSel ? state.players.findIndex(pp => pp.serverId === myIdSel) : -1;
-  const myTurnSel = myIdxSel >= 0 && state.current === myIdxSel;
+  const myTurnSel = state.netMode ? (myIdxSel >= 0 && state.current === myIdxSel) : true;
   if (elTableArea) elTableArea.classList.toggle("my-turn", myTurnSel || (!state.netMode));
-  const myHasDrawnSel = myTurnSel ? state.players[myIdxSel].hasDrawn : false;
-  const curSel = myTurnSel ? state.selectedIndices.map(i => state.players[myIdxSel].hand[i]) : [];
+  let myHasDrawnSel = false;
+  let curSel: Card[] = [];
+  if (!state.netMode) {
+    const cur = state.players[state.current];
+    myHasDrawnSel = cur.hasDrawn;
+    curSel = state.selectedIndices.map(i => cur.hand[i]);
+  } else if (myTurnSel && myIdxSel >= 0) {
+    const meSel = state.players[myIdxSel];
+    myHasDrawnSel = meSel.hasDrawn;
+    curSel = state.selectedIndices.map(i => meSel.hand[i]);
+  }
   const canGroup = myHasDrawnSel && curSel.length >= 3 && isValidGroup(curSel);
   const canRun = myHasDrawnSel && curSel.length >= 4 && isValidRun(curSel);
   if (elBtnLayGroup) {
@@ -781,37 +842,6 @@ function render(): void {
     elBtnLayRun.classList.toggle("text-white", canRun);
     elBtnLayRun.classList.toggle("bg-white", !canRun);
     elBtnLayRun.classList.toggle("text-gray-800", !canRun);
-  }
-  const isHitValid = (() => {
-    const myIdH = (state.net as NetClient)?.playerId || null;
-    const isSpectatorH = state.netMode && !myIdH;
-    const myIdxH = !isSpectatorH && myIdH ? state.players.findIndex(pp => pp.serverId === myIdH) : -1;
-    const myTurnH = myIdxH >= 0 && state.current === myIdxH;
-    const cur = myTurnH ? state.players[myIdxH] : state.players[state.current];
-    if (!myTurnH) return false;
-    if (!cur.laidComplete || state.selectedIndices.length === 0) return false;
-    if (state.netMode) return state.selectedIndices.length > 0; // server validates
-    const targetId = Number(elHitPlayer.value || "0");
-    const target = state.players.find(p => p.id === targetId);
-    if (!target) return false;
-    const idx = Number(elHitIndex.value || "0");
-    const add = curSel;
-    if (elHitType.value === "group") {
-      const base = target.laidGroups[idx];
-      if (!base) return false;
-      return isValidGroup(base.concat(add));
-    } else {
-      const base = target.laidRuns[idx];
-      if (!base) return false;
-      return isValidRun(base.concat(add));
-    }
-  })();
-  if (elBtnHit) {
-    elBtnHit.disabled = !isHitValid;
-    elBtnHit.classList.toggle("bg-primary", isHitValid);
-    elBtnHit.classList.toggle("text-white", isHitValid);
-    elBtnHit.classList.toggle("bg-white", !isHitValid);
-    elBtnHit.classList.toggle("text-gray-800", !isHitValid);
   }
   if (state.stage === "hand_results") {
     renderHandResults();
@@ -914,28 +944,44 @@ elBtnDiscard.onclick = () => {
   const cardImg = cand[0] || "";
   if (cardImg) animateCardToDiscard(selIdx, cardImg);
   if (state.netMode && state.net) {
-    state.net.discard(state.selectedIndices[0]);
+    const wasLastCard = cur.hand.length === 1;
+    state.net.discard(selIdx, (ok) => {
+      if (!ok || wasLastCard) return;
+      state.net?.endTurn();
+    });
     state.selectedIndices = [];
     pulse(elBtnDiscard);
     return;
   }
-  const [card] = cur.hand.splice(state.selectedIndices[0], 1);
+  const [card] = cur.hand.splice(selIdx, 1);
   state.discardPile.push(card);
   cur.didDiscard = true;
   state.selectedIndices = [];
+  const wentOut = cur.hand.length === 0;
   render();
   pulse(elBtnDiscard);
-  checkGoOutAfterDiscard();
+  if (wentOut) {
+    checkGoOutAfterDiscard();
+  } else {
+    nextPlayer();
+    render();
+  }
 };
 
 elBtnEnd.onclick = () => {
   const cur = state.players[state.current];
-  if (!cur.hasDrawn) { showToast("Draw first"); return; }
-  if (!cur.didDiscard) { showToast("Discard first"); return; }
   if (state.netMode && state.net) {
+    const myId = state.net.playerId;
+    if (!myId) { showToast("Spectating"); return; }
+    const curServerId = state.players[state.current]?.serverId;
+    if (!curServerId || curServerId !== myId) { showToast("Not your turn"); return; }
+    if (!cur.hasDrawn) { showToast("Draw first"); return; }
+    if (!cur.didDiscard) { showToast("Discard first"); return; }
     state.net.endTurn();
     return;
   }
+  if (!cur.hasDrawn) { showToast("Draw first"); return; }
+  if (!cur.didDiscard) { showToast("Discard first"); return; }
   nextPlayer();
   render();
   pulse(elBtnLayGroup);
@@ -987,7 +1033,6 @@ elBtnLayGroup.onclick = () => {
   reqs.forEach((r: PhaseRequirement) => { if (r.type === "group") groupsReq += r.count; else runsReq += r.count; });
   cur.laidComplete = cur.laidGroups.length >= groupsReq && cur.laidRuns.length >= runsReq;
   render();
-  pulse(elBtnHit);
 };
 
 elBtnLayRun.onclick = () => {
@@ -1019,6 +1064,30 @@ elBtnReset.onclick = () => {
   render();
 };
 
+if (elBtnResetRound) {
+  elBtnResetRound.onclick = () => {
+    if (!state.netMode || !state.net) {
+      showToast("Reset Round is only available in online games");
+      return;
+    }
+    if (!state.net.socket || !state.net.socket.connected) {
+      showToast("Not connected to server");
+      return;
+    }
+    state.net.resetHand((ok, err) => {
+      if (ok) showToast("Round reset");
+      else if (err === "timeout") showToast("No response from server");
+      else if (err === "disconnected") showToast("Not connected to server");
+      else if (err === "not_started") showToast("Match not started yet");
+      else if (err === "server_error") showToast("Server error");
+      else if (err === "not_found") {
+        showToast("Room not found. Returning to menu");
+        state.net?.leaveRoom(() => { state.stage = "find"; render(); });
+      } else showToast(`Unable to reset round (${String(err || "unknown")})`);
+    });
+  };
+}
+
 render();
 function endHand(): void {
   const scores: { name: string; hand: number; total: number }[] = [];
@@ -1031,43 +1100,7 @@ function endHand(): void {
   elScoreboard.style.display = "block";
 }
 
-elBtnHit.onclick = () => {
-  const cur = state.players[state.current];
-  if (state.selectedIndices.length === 0) { showToast("Select cards to hit"); return; }
-  if (!cur.laidComplete) { showToast("Lay down first"); return; }
-  if (state.netMode && state.net) {
-    const tServerId = String(elHitPlayer.value);
-    const idx = Number(elHitIndex.value);
-    const type = elHitType.value === "group" ? "group" : "run";
-    state.net.hit(tServerId, type, idx, state.selectedIndices.slice());
-    state.selectedIndices = [];
-    return;
-  }
-  const targetId = Number(elHitPlayer.value);
-  const target = state.players.find(p => p.id === targetId);
-  if (!target) return;
-  const idx = Number(elHitIndex.value);
-  if (elHitType.value === "group") {
-    const base = target.laidGroups[idx];
-    if (!base) { showToast("Pick a valid target group"); return; }
-    const add = state.selectedIndices.map(i => cur.hand[i]);
-    const next = base.concat(add);
-    if (!isValidGroup(next)) { showToast("Not a sufficient group"); return; }
-    target.laidGroups[idx] = next;
-  } else {
-    const base = target.laidRuns[idx];
-    if (!base) { showToast("Pick a valid target run"); return; }
-    const add = state.selectedIndices.map(i => cur.hand[i]);
-    const next = base.concat(add);
-    if (!isValidRun(next)) { showToast("Not a sufficient run"); return; }
-    target.laidRuns[idx] = next;
-  }
-  const keep: Card[] = [];
-  cur.hand.forEach((c, i) => { if (!state.selectedIndices.includes(i)) keep.push(c); });
-  cur.hand = keep;
-  state.selectedIndices = [];
-  render();
-};
+// hit-selected menu removed; hitting is handled via dragging onto laid groups/runs
 
 
 function checkGoOutAfterDiscard(): void {
@@ -1082,7 +1115,7 @@ function attachNet(): void {
   net.onState = (s: ServerRoomState) => {
     state.netMode = true;
     state.net = net;
-    const nextStage = s.handComplete ? "hand_results" : (s.started ? "game" : "lobby");
+    const nextStage = s.matchOver ? "match_summary" : (s.handComplete ? "hand_results" : (s.started ? "game" : "lobby"));
     if (state.stage !== nextStage) state.prevStage = state.stage;
     state.stage = nextStage;
     state.handNumber = s.handNumber;
@@ -1090,11 +1123,12 @@ function attachNet(): void {
     state.drawPile = new Deck(s.drawPile.slice());
     state.discardPile = s.discardPile.slice();
     state.lastScores = s.lastScores || [];
-    state.matchComplete = s.handComplete || false;
+    state.matchComplete = !!s.matchOver;
     state.turnDeadline = s.turnDeadline ?? null;
     (state as any).matchDeadline = s.matchDeadline ?? null;
     (state as any).spectators = s.spectators || [];
     state.lobbyDeadline = s.lobbyDeadline ?? null;
+    (state as any).matchReason = s.matchReason ?? null;
     if (state.stage === "lobby") startLobbyCountdown();
     // Map server players to local indices
     state.players = s.players.map((sp, i) => ({
@@ -1249,7 +1283,7 @@ function attachNet(): void {
     }
   if (elBtnLobbyStart) {
     const isPlayer = !!myId && s.players.some(x => x.id === myId);
-    elBtnLobbyStart.disabled = (s.players.length < 2) || s.started || !isPlayer;
+    elBtnLobbyStart.disabled = (s.players.length < 2) || s.started || !isPlayer || !allReady;
   }
   if (elLobbyTimer) elLobbyTimer.classList.add("hidden");
   if (elBtnLobbyExtend) elBtnLobbyExtend.classList.add("hidden");
@@ -1485,7 +1519,6 @@ elSelFilter.onchange = () => {
 };
 
 if (elHitPlayer) elHitPlayer.onchange = () => { render(); };
-if (elHitType) elHitType.onchange = () => { render(); };
 
 let autoTimer: number | null = null;
 function ensureAutoRefresh(on: boolean) {
@@ -1739,8 +1772,31 @@ if (elBtnSaveSettings) {
     render();
   };
 }
-if (elBtnPlayAgain) { elBtnPlayAgain.onclick = () => { state.stage = "find"; render(); }; }
-if (elBtnReturnMenu) { elBtnReturnMenu.onclick = () => { state.stage = "title"; render(); }; }
+if (elBtnPlayAgain) {
+  elBtnPlayAgain.onclick = () => {
+    if (state.netMode && state.net) {
+      state.net.restartMatch((ok) => {
+        if (!ok) showToast("Unable to return to lobby");
+      });
+      state.stage = "lobby";
+      render();
+      startLobbyCountdown();
+      return;
+    }
+    state.stage = "find";
+    render();
+  };
+}
+if (elBtnReturnMenu) {
+  elBtnReturnMenu.onclick = () => {
+    if (state.netMode && state.net) {
+      state.net.leaveRoom(() => { state.stage = "find"; render(); });
+      return;
+    }
+    state.stage = "find";
+    render();
+  };
+}
 if (elBtnHandBack) { elBtnHandBack.onclick = () => { state.stage = "find"; render(); }; }
 if (elBtnNextHand) {
   elBtnNextHand.onclick = () => {
@@ -1748,8 +1804,12 @@ if (elBtnNextHand) {
       state.net.nextHand((ok, err) => {
         if (!ok) {
           if (err === "not_complete") showToast("Hand not complete yet");
+          else if (err === "not_found") {
+            showToast("Room not found. Returning to menu");
+            state.net?.leaveRoom(() => { state.stage = "find"; render(); });
+          }
           else if (err === "match_complete") showToast("Match complete");
-          else showToast("Unable to start next hand");
+          else showToast(`Unable to start next hand (${String(err || "unknown")})`);
         }
       });
       return;
@@ -1774,7 +1834,8 @@ if (elBtnNextHand) {
     const discardFirst = deck.draw();
     state.drawPile = deck;
     state.discardPile = discardFirst ? [discardFirst] : [];
-    state.current = 0;
+    state.startingIndex = state.players.length > 0 ? ((state.startingIndex + 1) % state.players.length) : 0;
+    state.current = state.startingIndex;
     state.lastScores = [];
     state.stage = "game";
     render();

@@ -1,0 +1,21 @@
+Feedback 1: 
+-the 'buy' option still doesn't work. I can't change the dropdown to a different player in the 'Hit player', so I can't 'Give discard'. 
+-in the 'Hit Player' why are there dropdowns for groups and runs? We don't need those.  
+-Make sure all card images work
+-can you automatically end turn when a card is discarded ('discard selected')
+-Players should be around a table (Check image for reference)
+-Error toast: can it be a different color
+-For the next round, the next person needs to start. Not the same person that started the 1st round. 
+-I couldn't draw during the second round, so the game was stuck. Could we have a reset the round button? where it resets the round. 
+-floating card at the bottom that won't allow you to click (this was on an iPad)
+-Was not able to rearrange the cards. 
+-I was able to lay down only 1 group in the first round. I need to be blocked from laying down unless I do the full 'set' for the round (round 1: 2 groups, 2 round: 1 group, 1 run). So if I lay down only 1 group on the first round there should be an error.
+
+
+Feedback 2.. the reference image for this: 
+-having the players more in a 'table' setting so that the players go in order. (remember, on the second round the next player in line needs to go first). 
+-the "hit selected" menu isn't really needed. Can we have just a few of the options to the right of the discard pile? 
+-The 'give discard' should be close to the 'take discard'. The dropdown didn't work either, but we were able to 'give' a discard to the first person on the dropdown because it was the default. 
+-At the beginning of the turn can you have the 2 buttons 'Draw' and 'Take Discard' flashing or highlighted in someway on the screen that moves? So that the player knows that they need to go. 
+-It's still difficult to see which cards are 'selected.' The border helps, but it's not that visible. In the image I added a green dot above the card to show more visibly that these are the cards that are selected. 
+-When a player 'Discard Selected' can you automatically have it end the turn so that the next person can start their turn

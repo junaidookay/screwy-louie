@@ -27,10 +27,13 @@ type RoomState = {
   handNumber: number;
   players: PlayerSeat[];
   currentIndex: number;
+  startingIndex: number;
   drawPile: Card[];
   discardPile: Card[];
   started: boolean;
   handComplete: boolean;
+  matchOver: boolean;
+  matchReason: string | null;
   lastScores: { playerId: string; name: string; hand: number; total: number }[];
   turnDeadline: number | null;
   turnMs: number;
@@ -59,10 +62,13 @@ function createRoom(): RoomState {
     handNumber: 1,
     players: [],
     currentIndex: 0,
+    startingIndex: 0,
     drawPile: [],
     discardPile: [],
     started: false,
     handComplete: false,
+    matchOver: false,
+    matchReason: null,
     lastScores: [],
     turnDeadline: null,
     turnMs: TURN_TIMEOUT_MS,
@@ -99,7 +105,10 @@ function deal(room: RoomState): void {
   }
   const first = room.drawPile.pop();
   if (first) room.discardPile.push(first);
-  room.currentIndex = 0;
+  if (room.startingIndex >= room.players.length) {
+    room.startingIndex = 0;
+  }
+  room.currentIndex = room.startingIndex;
   scheduleTurnTimeout(room);
   emitEvent(io, room, `Dealt hand ${room.handNumber}`);
 }
@@ -115,6 +124,57 @@ function endHand(room: RoomState): void {
     p.totalScore += handScore;
     room.lastScores.push({ playerId: p.id, name: p.name, hand: handScore, total: p.totalScore });
   }
+}
+
+function recordRecent(room: RoomState, reason: string): void {
+  try {
+    recentMatches.push({ id: room.id, ended: Date.now(), reason, players: room.players.map(p => ({ name: p.name, totalScore: p.totalScore })) });
+    if (recentMatches.length > 20) recentMatches.splice(0, recentMatches.length - 20);
+  } catch {}
+}
+
+function markMatchOver(io: Server, room: RoomState, reason: string): void {
+  if (room.matchOver) return;
+  room.matchOver = true;
+  room.matchReason = reason;
+  room.started = false;
+  room.turnDeadline = null;
+  const tt = turnTimers.get(room.id);
+  if (tt) { clearTimeout(tt); turnTimers.delete(room.id); }
+  const mt = matchTimers.get(room.id);
+  if (mt) { clearTimeout(mt); matchTimers.delete(room.id); }
+  room.matchDeadline = null;
+  room.currentIndex = 0;
+  room.startingIndex = 0;
+  room.players.forEach(p => { p.ready = false; });
+  recordRecent(room, reason);
+  scheduleLobbyTimeout(room);
+  emitEvent(io, room, reason === "complete" ? "Match complete" : `Match ended (${reason})`);
+}
+
+function resetToLobby(room: RoomState): void {
+  room.started = false;
+  room.handComplete = false;
+  room.matchOver = false;
+  room.matchReason = null;
+  room.lastScores = [];
+  room.turnDeadline = null;
+  const tt = turnTimers.get(room.id);
+  if (tt) { clearTimeout(tt); turnTimers.delete(room.id); }
+  const mt = matchTimers.get(room.id);
+  if (mt) { clearTimeout(mt); matchTimers.delete(room.id); }
+  room.matchDeadline = null;
+  room.drawPile = [];
+  room.discardPile = [];
+  room.currentIndex = 0;
+  room.startingIndex = 0;
+  room.players.forEach(p => { p.ready = false; p.hand = []; p.hasDrawn = false; p.didDiscard = false; p.laidGroups = []; p.laidRuns = []; p.laidComplete = false; });
+}
+
+function resetForNewMatch(room: RoomState): void {
+  resetToLobby(room);
+  room.handNumber = 1;
+  room.players.forEach(p => { p.totalScore = 0; });
 }
 
 function scheduleTurnTimeout(room: RoomState): void {
@@ -180,9 +240,8 @@ function onMatchTimeout(roomId: string): void {
   if (!room.handComplete) {
     endHand(room);
   }
-  emitEvent(io, room, "Match time limit reached");
+  markMatchOver(io, room, "timeout");
   broadcast(io, room);
-  setTimeout(() => closeRoomInternal(io, room, "timeout"), 15000);
 }
 
 function onLobbyTimeout(roomId: string): void {
@@ -265,9 +324,9 @@ function roomSummary(room: RoomState): any {
 }
 
 const baseDir = process.cwd();
-const indexFile = path.join(baseDir, "dist", "index.html");
+const indexFile = path.join(baseDir, "dist", "client", "index.html");
 const staticRoots = [
-  path.join(baseDir, "dist"),
+  path.join(baseDir, "dist", "client"),
   path.join(baseDir, "Card Game Assets"),
 ];
 const server = http.createServer((req, res) => {
@@ -315,8 +374,10 @@ const server = http.createServer((req, res) => {
     const baseName = path.basename(root).toLowerCase();
     if (baseName === "card game assets" && sub.toLowerCase().startsWith("card game assets/")) {
       sub = sub.slice("Card Game Assets/".length);
-    } else if (baseName === "dist" && sub.toLowerCase().startsWith("dist/")) {
-      sub = sub.slice("dist/".length);
+    } else if (baseName === "client" && sub.toLowerCase().startsWith("dist/client/")) {
+      sub = sub.slice("dist/client/".length);
+    } else if (baseName === "client" && sub.toLowerCase().startsWith("client/")) {
+      sub = sub.slice("client/".length);
     }
     const file = path.join(root, sub);
     if (fs.existsSync(file) && fs.statSync(file).isFile()) {
@@ -473,18 +534,22 @@ io.on("connection", (socket) => {
       } else {
         emitEvent(io, room, `${p.name} left. Match ended`);
       }
+      markMatchOver(io, room, "forfeit");
       broadcast(io, room);
-      setTimeout(() => closeRoomInternal(io, room, "forfeit"), 15000);
       return cb({ ok: true });
     }
 
     if (room.players.length === 0) {
       room.currentIndex = 0;
+      room.startingIndex = 0;
     } else if (wasCur) {
       room.currentIndex = room.currentIndex % room.players.length;
+      room.startingIndex = room.currentIndex;
     } else {
       const currentId = room.players[room.currentIndex]?.id || null;
       room.currentIndex = currentId ? room.players.findIndex(x => x.id === currentId) : 0;
+      if (room.currentIndex < 0) room.currentIndex = 0;
+      room.startingIndex = room.currentIndex;
     }
     emitEvent(io, room, `${p.name} left seat`);
     broadcast(io, room);
@@ -496,7 +561,10 @@ io.on("connection", (socket) => {
     if (!room) return cb({ error: "not_found" });
     const info = playerBySocket.get(socket.id);
     if (!info || info.roomId !== room.id) return cb({ error: "not_player" });
+    if (room.started) return cb({ error: "in_progress" });
     if (room.players.length < 2) return cb({ error: "need_players" });
+    if (!room.players.every(p => p.ready)) return cb({ error: "not_ready" });
+    resetForNewMatch(room);
     room.started = true;
     deal(room);
     broadcast(io, room);
@@ -506,6 +574,20 @@ io.on("connection", (socket) => {
     if (lt) { clearTimeout(lt); lobbyTimers.delete(room.id); }
     room.lobbyDeadline = null;
     scheduleMatchTimeout(room);
+  });
+
+  socket.on("restartMatch", ({ roomId }, cb) => {
+    const room = rooms.get(roomId);
+    if (!room) return cb && cb({ error: "not_found" });
+    const info = playerBySocket.get(socket.id);
+    const sinfo = spectatorBySocket.get(socket.id);
+    const inRoom = (info && info.roomId === room.id) || (sinfo && sinfo.roomId === room.id);
+    if (!inRoom) return cb && cb({ error: "not_member" });
+    resetToLobby(room);
+    scheduleLobbyTimeout(room);
+    broadcast(io, room);
+    emitEvent(io, room, "Back to lobby");
+    cb && cb({ ok: true });
   });
 
   socket.on("extendLobby", ({ roomId, addMs }, cb) => {
@@ -614,6 +696,9 @@ io.on("connection", (socket) => {
     if (cur.hand.length === 0) {
       endHand(room);
       emitEvent(io, room, `Hand complete`);
+      if (room.handNumber >= 6) {
+        markMatchOver(io, room, "complete");
+      }
     }
     broadcast(io, room);
     cb({ ok: true });
@@ -657,6 +742,38 @@ io.on("connection", (socket) => {
     emitEvent(io, room, `${cur.name} gave discard to ${target.name}`);
     broadcast(io, room);
     cb({ ok: true });
+  });
+
+  socket.on("resetHand", ({ roomId }, cb) => {
+    const ack = typeof cb === "function" ? cb : (() => {});
+    try {
+      const room = rooms.get(roomId);
+      if (!room) return ack({ error: "not_found" });
+      if (!room.started) return ack({ error: "not_started" });
+      deal(room);
+      broadcast(io, room);
+      emitEvent(io, room, "Hand reset");
+      return ack({ ok: true });
+    } catch {
+      return ack({ error: "server_error" });
+    }
+  });
+
+  socket.on("finishHand", ({ roomId }, cb) => {
+    const ack = typeof cb === "function" ? cb : (() => {});
+    try {
+      const room = rooms.get(roomId);
+      if (!room) return ack({ error: "not_found" });
+      if (!room.started) return ack({ error: "not_started" });
+      if (room.matchOver) return ack({ error: "match_complete" });
+      if (room.handComplete) return ack({ error: "hand_complete" });
+      endHand(room);
+      broadcast(io, room);
+      emitEvent(io, room, "Hand finished");
+      return ack({ ok: true });
+    } catch {
+      return ack({ error: "server_error" });
+    }
   });
 
   socket.on("layGroup", ({ roomId, playerId, indices }, cb) => {
@@ -774,15 +891,18 @@ io.on("connection", (socket) => {
     if (!room) return cb({ error: "not_found" });
     if (!room.handComplete) return cb({ error: "not_complete" });
     if (room.handNumber >= 6) {
-      cb({ error: "match_complete" });
-      emitEvent(io, room, "Match complete");
+      markMatchOver(io, room, "complete");
       broadcast(io, room);
-      setTimeout(() => closeRoomInternal(io, room, "complete"), 15000);
+      cb({ ok: true, matchOver: true });
       return;
     }
     room.handNumber += 1;
+    if (room.players.length > 0) {
+      room.startingIndex = (room.startingIndex + 1) % room.players.length;
+    } else {
+      room.startingIndex = 0;
+    }
     deal(room);
-    scheduleTurnTimeout(room);
     emitEvent(io, room, `Starting next hand`);
     broadcast(io, room);
     cb({ ok: true });
@@ -861,17 +981,21 @@ io.on("connection", (socket) => {
           } else {
             emitEvent(io, room, `${p2.name} disconnected. Match ended`);
           }
+          markMatchOver(io, room, "forfeit");
           broadcast(io, room);
-          setTimeout(() => closeRoomInternal(io, room, "forfeit"), 15000);
           return;
         }
         if (room.players.length === 0) {
           room.currentIndex = 0;
+          room.startingIndex = 0;
         } else if (wasCur2) {
           room.currentIndex = room.currentIndex % room.players.length;
+          room.startingIndex = room.currentIndex;
         } else {
           const currentId2 = room.players[room.currentIndex]?.id || null;
           room.currentIndex = currentId2 ? room.players.findIndex(x => x.id === currentId2) : 0;
+          if (room.currentIndex < 0) room.currentIndex = 0;
+          room.startingIndex = room.currentIndex;
         }
         emitEvent(io, room, `${p2.name} left seat`);
         broadcast(io, room);
