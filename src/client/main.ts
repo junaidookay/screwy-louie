@@ -3,7 +3,7 @@ import { Deck } from "../engine/deck";
 import { getDealCountForHand, getPhaseRequirementsForHand, PhaseRequirement } from "../engine/game";
 import { NetClient, ServerRoomState, RoomSummary } from "./net";
 import { scoreHand } from "../engine/scoring";
-import { isValidGroup, isValidRun, whyRunInvalid } from "../engine/rules";
+import { isValidGroup, isValidRun, orderGroupForDisplay, orderRunForDisplay, whyRunInvalid } from "../engine/rules";
 
 type Player = { id: number; serverId?: string; name: string; hand: Card[]; hasDrawn: boolean; didDiscard: boolean; laidGroups: Card[][]; laidRuns: Card[][]; laidComplete: boolean; totalScore: number };
 
@@ -171,7 +171,6 @@ const elDrawBack = document.getElementById("draw-back") as HTMLElement;
 const elBtnDraw = document.getElementById("btn-draw") as HTMLButtonElement;
 const elBtnDrawDiscard = document.getElementById("btn-draw-discard") as HTMLButtonElement;
 const elBtnDiscard = document.getElementById("btn-discard") as HTMLButtonElement;
-const elBtnEnd = document.getElementById("btn-end") as HTMLButtonElement;
 const elSelTarget = document.getElementById("sel-target") as HTMLSelectElement;
 const elBtnGive = document.getElementById("btn-give") as HTMLButtonElement;
 const elBtnLayGroup = document.getElementById("btn-lay-group") as HTMLButtonElement;
@@ -580,7 +579,6 @@ function render(): void {
     elBtnDrawDiscard.classList.toggle("turn-highlight", canDrawFromDiscard);
   }
   if (elBtnDiscard) elBtnDiscard.disabled = false;
-  if (elBtnEnd) elBtnEnd.disabled = isSpectator || !myTurn;
   const curName = state.players[state.current]?.name || "Player";
   const reqParts = getPhaseRequirementsForHand(state.handNumber).map(r => r.type === "group" ? `${r.count} Group${r.count>1?"s":""}` : `${r.count} Run${r.count>1?"s":""}`);
   elStatus.textContent = `Round ${state.handNumber}: ${reqParts.join(" + ")} • Turn: ${curName}`;
@@ -648,6 +646,7 @@ function render(): void {
     const myIdxX = !isSpectatorX && myIdX ? state.players.findIndex(pp => pp.serverId === myIdX) : -1;
     const viewerIdx = myIdxX >= 0 ? myIdxX : state.current;
     const p = state.players[viewerIdx];
+    const canReorderHand = !state.netMode || (!isSpectatorX && myIdxX >= 0 && viewerIdx === myIdxX);
     p.hand.forEach((c, idx) => {
       const outer = document.createElement("div");
       const isSel = state.current === p.id && state.selectedIndices.includes(idx);
@@ -690,17 +689,17 @@ function render(): void {
       inner.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); });
       inner.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); });
       inner.addEventListener("mouseleave", () => { hideHoverPreview(); });
-      inner.draggable = state.current === p.id;
+      inner.draggable = canReorderHand;
       inner.addEventListener("dragstart", (e) => {
         hideHoverPreview();
-        if (state.current !== p.id) return;
+        if (!canReorderHand) return;
         try { e.dataTransfer?.setData("text/plain", String(idx)); } catch {}
         try { e.dataTransfer && (e.dataTransfer.effectAllowed = "move"); } catch {}
       });
       inner.addEventListener("dragover", (e) => { e.preventDefault(); });
       inner.addEventListener("drop", (e) => {
         e.preventDefault();
-        if (state.current !== p.id) return;
+        if (!canReorderHand) return;
         const fromRaw = e.dataTransfer?.getData("text/plain") || "";
         const fromIdx = Number(fromRaw);
         if (!Number.isFinite(fromIdx)) return;
@@ -738,7 +737,7 @@ function render(): void {
         const row = document.createElement("div"); row.className = "flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-2 py-1 slide-in-row";
         const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300 inline-flex items-center gap-1"; label.innerHTML = `<span class='material-symbols-outlined' style='font-size:14px'>groups</span><span>Group ${gi + 1}</span>`; row.appendChild(label);
         const cardsWrap = document.createElement("div"); cardsWrap.className = "flex items-center gap-2";
-        g.forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-12 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
+        orderGroupForDisplay(g).forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-16 sm:w-20 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
         row.appendChild(cardsWrap);
         // drag-to-hit
         row.addEventListener("dragover", (e) => { e.preventDefault(); });
@@ -772,7 +771,7 @@ function render(): void {
         const row = document.createElement("div"); row.className = "flex items-center gap-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-2 py-1 slide-in-row";
         const label = document.createElement("span"); label.className = "text-xs font-semibold text-gray-600 dark:text-gray-300 inline-flex items-center gap-1"; label.innerHTML = `<span class='material-symbols-outlined' style='font-size:14px'>alt_route</span><span>Run ${ri + 1}</span>`; row.appendChild(label);
         const cardsWrap = document.createElement("div"); cardsWrap.className = "flex items-center gap-2";
-        r.forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-12 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
+        orderRunForDisplay(r).forEach((c) => { const cardEl = document.createElement("div"); cardEl.className = "w-16 sm:w-20 aspect-[3/4] rounded-md border bg-center bg-no-repeat bg-contain shadow-sm"; setBackgroundCard(cardEl, c); cardEl.title = formatCard(c); cardEl.addEventListener("mouseenter", (e) => { showHoverPreview(c, (e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mousemove", (e) => { moveHoverPreview((e as MouseEvent).pageX, (e as MouseEvent).pageY); }); cardEl.addEventListener("mouseleave", () => { hideHoverPreview(); }); cardsWrap.appendChild(cardEl); });
         row.appendChild(cardsWrap);
         row.addEventListener("dragover", (e) => { e.preventDefault(); });
         row.addEventListener("drop", (e) => {
@@ -966,25 +965,6 @@ elBtnDiscard.onclick = () => {
     nextPlayer();
     render();
   }
-};
-
-elBtnEnd.onclick = () => {
-  const cur = state.players[state.current];
-  if (state.netMode && state.net) {
-    const myId = state.net.playerId;
-    if (!myId) { showToast("Spectating"); return; }
-    const curServerId = state.players[state.current]?.serverId;
-    if (!curServerId || curServerId !== myId) { showToast("Not your turn"); return; }
-    if (!cur.hasDrawn) { showToast("Draw first"); return; }
-    if (!cur.didDiscard) { showToast("Discard first"); return; }
-    state.net.endTurn();
-    return;
-  }
-  if (!cur.hasDrawn) { showToast("Draw first"); return; }
-  if (!cur.didDiscard) { showToast("Discard first"); return; }
-  nextPlayer();
-  render();
-  pulse(elBtnLayGroup);
 };
 
 if (elBtnGive) elBtnGive.onclick = () => {

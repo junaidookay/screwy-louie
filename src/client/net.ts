@@ -39,9 +39,16 @@ export class NetClient {
   onSpectatorJoin?: (d: { name: string }) => void;
 
   connect(): void {
-    const url = location.port && location.port !== "3001"
-      ? `${location.protocol}//${location.hostname}:3001`
-      : location.origin;
+    const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    const configuredUrl = (() => {
+      try {
+        const v = localStorage.getItem("socketUrlOverride");
+        return v && v.trim().length ? v.trim() : null;
+      } catch {
+        return null;
+      }
+    })();
+    const url = configuredUrl ?? (isLocalhost && location.port && location.port !== "3001" ? `${location.protocol}//${location.hostname}:3001` : location.origin);
     this.socket = io(url, { transports: ["websocket", "polling"], reconnectionAttempts: 10, reconnectionDelay: 500 });
     this.socket.on("state", (s: ServerRoomState) => {
       if (this.onState) this.onState(s);

@@ -92,3 +92,64 @@ export function whyRunInvalid(cards: Card[]): string | null {
   if (finalLength !== cards.length) return "Wilds do not match run length";
   return null;
 }
+
+function suitValue(suit: Suit | undefined): number {
+  if (suit === "Clubs") return 1;
+  if (suit === "Diamonds") return 2;
+  if (suit === "Hearts") return 3;
+  if (suit === "Spades") return 4;
+  return 99;
+}
+
+export function orderGroupForDisplay(cards: Card[]): Card[] {
+  const wilds: Card[] = [];
+  const nonWild: Card[] = [];
+  for (const c of cards) {
+    if (isWild(c)) wilds.push(c);
+    else nonWild.push(c);
+  }
+  nonWild.sort((a, b) => {
+    const ra = rankValue(a.rank);
+    const rb = rankValue(b.rank);
+    if (ra !== rb) return ra - rb;
+    return suitValue(a.suit) - suitValue(b.suit);
+  });
+  return nonWild.concat(wilds);
+}
+
+export function orderRunForDisplay(cards: Card[]): Card[] {
+  const snapshot = cards.slice();
+  if (!isValidRun(snapshot)) return snapshot;
+  const wilds: Card[] = [];
+  const nonWild: Card[] = [];
+  for (const c of snapshot) {
+    if (isWild(c)) wilds.push(c);
+    else nonWild.push(c);
+  }
+  if (nonWild.length === 0) return wilds;
+  const byValue = new Map<number, Card>();
+  for (const c of nonWild) byValue.set(rankValue(c.rank), c);
+  const values = Array.from(byValue.keys()).sort((a, b) => a - b);
+  const first = values[0];
+  const last = values[values.length - 1];
+  let neededWilds = 0;
+  for (let i = 1; i < values.length; i++) {
+    const gap = values[i] - values[i - 1] - 1;
+    if (gap > 0) neededWilds += gap;
+  }
+  let remainingWilds = wilds.length - neededWilds;
+  if (remainingWilds < 0) return snapshot;
+  const extendLeft = Math.min(remainingWilds, first - 3);
+  remainingWilds -= extendLeft;
+  const extendRight = Math.min(remainingWilds, 14 - last);
+  const start = first - extendLeft;
+  const end = last + extendRight;
+  const out: Card[] = [];
+  let wi = 0;
+  for (let v = start; v <= end; v++) {
+    const c = byValue.get(v);
+    if (c) out.push(c);
+    else out.push(wilds[wi++]);
+  }
+  return out;
+}
